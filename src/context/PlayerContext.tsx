@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { registerClick, type Station } from '../lib/radio-browser'
+import { trackStructEvent } from '../lib/snowplow'
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
@@ -216,6 +217,67 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const toggleMute = useCallback(() => {
     dispatch({ type: 'TOGGLE_MUTE' })
   }, [])
+
+  // ─── Media Session API ───────────────────────────────────────────────────────
+  // Updates the OS media controls (lock screen, notification shade, hardware keys)
+  // whenever the current station or playback status changes.
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !('mediaSession' in navigator)) return
+
+    if (!state.station) {
+      navigator.mediaSession.metadata = null
+      navigator.mediaSession.playbackState = 'none'
+      return
+    }
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: state.station.name,
+      artist: state.station.country || 'Live Radio',
+      album: "Leo's Radio Explorer",
+      artwork: state.station.favicon
+        ? [{ src: state.station.favicon, sizes: 'any', type: 'image/jpeg' }]
+        : [],
+    })
+
+    navigator.mediaSession.playbackState =
+      state.status === 'playing' ? 'playing'
+      : state.status === 'paused' ? 'paused'
+      : 'none'
+
+    navigator.mediaSession.setActionHandler('play', () =>
+      audioRef.current?.play().catch(() => null),
+    )
+    navigator.mediaSession.setActionHandler('pause', () => audioRef.current?.pause())
+    navigator.mediaSession.setActionHandler('stop', () => {
+      audioRef.current?.pause()
+      if (audioRef.current) audioRef.current.src = ''
+      hlsRef.current?.destroy()
+      hlsRef.current = null
+      dispatch({ type: 'STOP' })
+    })
+  }, [state.station, state.status])
+
+  // ─── Play / pause analytics ──────────────────────────────────────────────────
+  // Fires a Snowplow structured event when playback starts or pauses.
+  // No-ops silently when no Snowplow collector is configured.
+  useEffect(() => {
+    if (!state.station) return
+    if (state.status === 'playing') {
+      trackStructEvent({
+        category: 'player',
+        action: 'play',
+        label: state.station.name,
+        property: state.station.stationuuid,
+      })
+    } else if (state.status === 'paused') {
+      trackStructEvent({
+        category: 'player',
+        action: 'pause',
+        label: state.station.name,
+        property: state.station.stationuuid,
+      })
+    }
+  }, [state.status, state.station?.stationuuid]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <PlayerContext.Provider

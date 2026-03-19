@@ -144,6 +144,11 @@ export function registerClick(uuid: string): void {
   })
 }
 
+/** Submit a community vote for a station. */
+export async function voteStation(uuid: string): Promise<void> {
+  await apiFetch<{ ok: boolean; message: string }>(`/vote/${uuid}`)
+}
+
 /** Derive a stable gradient for stations without artwork. */
 export function stationGradient(uuid: string): string {
   let hash = 0

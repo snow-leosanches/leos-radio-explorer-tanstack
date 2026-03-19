@@ -1,14 +1,17 @@
 import { Link } from '@tanstack/react-router'
-import { ExternalLink, Loader2, Pause, Play, Radio } from 'lucide-react'
+import { ExternalLink, Loader2, Pause, Play, Radio, ThumbsUp } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { usePlayer } from '../../context/PlayerContext'
 import { flagEmoji } from '../../lib/genre-meta'
-import { parseTags, stationGradient, type Station } from '../../lib/radio-browser'
+import { parseTags, stationGradient, voteStation, type Station } from '../../lib/radio-browser'
 import FavoriteButton from '../ui/FavoriteButton'
 import GenrePill from '../ui/GenrePill'
 
 interface StationDetailHeroProps {
   station: Station
 }
+
+const VOTED_KEY = (uuid: string) => `radio-explorer:voted:${uuid}`
 
 export default function StationDetailHero({ station }: StationDetailHeroProps) {
   const { state, toggle } = usePlayer()
@@ -19,6 +22,29 @@ export default function StationDetailHero({ station }: StationDetailHeroProps) {
   const gradient = stationGradient(station.stationuuid)
   const tags = parseTags(station.tags)
   const flag = station.countrycode ? flagEmoji(station.countrycode) : null
+
+  // Vote state — persisted in localStorage so users don't vote twice
+  const [voted, setVoted] = useState(false)
+  const [voteCount, setVoteCount] = useState(station.votes)
+  const [voting, setVoting] = useState(false)
+
+  useEffect(() => {
+    setVoted(localStorage.getItem(VOTED_KEY(station.stationuuid)) === '1')
+    setVoteCount(station.votes)
+  }, [station.stationuuid, station.votes])
+
+  async function handleVote() {
+    if (voted || voting) return
+    setVoting(true)
+    try {
+      await voteStation(station.stationuuid)
+      localStorage.setItem(VOTED_KEY(station.stationuuid), '1')
+      setVoted(true)
+      setVoteCount((n) => n + 1)
+    } finally {
+      setVoting(false)
+    }
+  }
 
   return (
     <div className="relative overflow-hidden">
@@ -133,6 +159,27 @@ export default function StationDetailHero({ station }: StationDetailHeroProps) {
               {/* Save to Library */}
               <FavoriteButton station={station} size="md" />
 
+              {/* Vote */}
+              <button
+                onClick={handleVote}
+                disabled={voted || voting}
+                title={voted ? 'You already voted for this station' : 'Vote for this station'}
+                aria-label={voted ? 'Already voted' : 'Vote for this station'}
+                className={[
+                  'flex items-center gap-1.5 rounded-xl border px-3 py-2.5 text-sm font-semibold transition',
+                  voted
+                    ? 'border-[var(--lagoon-deep)] bg-[color-mix(in_oklab,var(--lagoon)_12%,var(--surface))] text-[var(--lagoon-deep)] cursor-default'
+                    : 'border-[var(--line)] bg-[var(--surface)] text-[var(--sea-ink-soft)] hover:border-[var(--lagoon-deep)] hover:text-[var(--lagoon-deep)] disabled:cursor-not-allowed disabled:opacity-50',
+                ].join(' ')}
+              >
+                <ThumbsUp
+                  size={14}
+                  className={voted ? 'fill-[var(--lagoon-deep)]' : ''}
+                  aria-hidden="true"
+                />
+                {voteCount.toLocaleString()}
+              </button>
+
               {/* Homepage link */}
               {station.homepage && (
                 <a
@@ -147,13 +194,6 @@ export default function StationDetailHero({ station }: StationDetailHeroProps) {
                 </a>
               )}
             </div>
-
-            {/* Vote count */}
-            {station.votes > 0 && (
-              <p className="text-xs text-[var(--sea-ink-soft)]">
-                {station.votes.toLocaleString()} votes
-              </p>
-            )}
           </div>
         </div>
       </div>

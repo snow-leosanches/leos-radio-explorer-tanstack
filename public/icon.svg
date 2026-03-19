@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="108" fill="#0a1418"/>
+
+  <!-- Outer radio wave arc (left) -->
+  <path d="M148 256 A108 108 0 0 1 256 148" fill="none" stroke="#4fb8b2" stroke-width="22" stroke-linecap="round" opacity="0.4"/>
+  <!-- Outer radio wave arc (right) -->
+  <path d="M256 148 A108 108 0 0 1 364 256" fill="none" stroke="#4fb8b2" stroke-width="22" stroke-linecap="round" opacity="0.4"/>
+
+  <!-- Mid radio wave arc (left) -->
+  <path d="M181 256 A75 75 0 0 1 256 181" fill="none" stroke="#4fb8b2" stroke-width="22" stroke-linecap="round" opacity="0.65"/>
+  <!-- Mid radio wave arc (right) -->
+  <path d="M256 181 A75 75 0 0 1 331 256" fill="none" stroke="#4fb8b2" stroke-width="22" stroke-linecap="round" opacity="0.65"/>
+
+  <!-- Inner radio wave arc (left) -->
+  <path d="M214 256 A42 42 0 0 1 256 214" fill="none" stroke="#4fb8b2" stroke-width="22" stroke-linecap="round"/>
+  <!-- Inner radio wave arc (right) -->
+  <path d="M256 214 A42 42 0 0 1 298 256" fill="none" stroke="#4fb8b2" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- Center dot -->
+  <circle cx="256" cy="256" r="18" fill="#4fb8b2"/>
+
+  <!-- Vertical line down to base -->
+  <line x1="256" y1="274" x2="256" y2="340" stroke="#4fb8b2" stroke-width="18" stroke-linecap="round"/>
+
+  <!-- Base bar -->
+  <line x1="200" y1="340" x2="312" y2="340" stroke="#4fb8b2" stroke-width="18" stroke-linecap="round"/>
+</svg>
