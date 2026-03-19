@@ -78,6 +78,32 @@
   box-sizing: border-box;
 }
 
+/* ─── Focus rings (keyboard accessibility) ───────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--lagoon-deep);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Remove outline for mouse/touch focus — keep only for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ─── Minimum touch targets (44 × 44 px per WCAG 2.5.5) ─────────────────── */
+/* Applied only to standalone interactive buttons, not inline text/links */
+button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Standalone nav links and chips can revert to their natural size */
+.nav-link,
+.genre-pill {
+  min-height: unset;
+  min-width: unset;
+}
+
 html,
 body,
 #app {

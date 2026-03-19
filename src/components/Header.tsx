@@ -1,11 +1,13 @@
 import { Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { Radio, Search } from 'lucide-react'
 import { useEffect } from 'react'
+import { useLibrary } from '../context/LibraryContext'
 import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
   const navigate = useNavigate()
   const router = useRouter()
+  const { savedStations } = useLibrary()
 
   // Global Cmd+K / Ctrl+K → focus search
   useEffect(() => {
@@ -83,10 +85,15 @@ export default function Header() {
           </Link>
           <Link
             to="/library"
-            className="nav-link"
+            className="nav-link inline-flex items-center gap-1.5"
             activeProps={{ className: 'nav-link is-active' }}
           >
             Library
+            {savedStations.length > 0 && (
+              <span className="rounded-full bg-[var(--lagoon-deep)] px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                {savedStations.length > 99 ? '99+' : savedStations.length}
+              </span>
+            )}
           </Link>
         </div>
       </nav>

@@ -1,247 +1,91 @@
-Welcome to your new TanStack Start app! 
+# Leo's Radio Explorer
 
-# Getting Started
+Discover and stream thousands of live radio stations from every genre and corner of the world — free, no sign-up needed.
 
-To run this application:
+## Features
+
+- **Live streaming** — HLS + direct stream support via HTML5 audio
+- **Persistent player** — bottom bar stays across all pages, just like Spotify
+- **Browse by genre** — 60+ genres with curated artwork and colour coding
+- **Browse by country** — 190+ countries with flag display and station counts
+- **Real-time search** — instant results by name, genre, or country (⌘K from anywhere)
+- **Library** — save favourite stations to localStorage, undo removals via toast
+- **Station detail pages** — artwork, metadata, related stations, vote counts
+- **Dark mode** — system-aware with manual override, flicker-free
+- **Accessible** — keyboard navigation, focus rings, ARIA labels, 44px touch targets
+
+## Tech Stack
+
+| Layer | Choice |
+|-------|--------|
+| Framework | [TanStack Start](https://tanstack.com/start) (React 19, SSR) |
+| Routing | [TanStack Router](https://tanstack.com/router) (file-based) |
+| Data fetching | [TanStack Query](https://tanstack.com/query) |
+| Styling | [Tailwind CSS v4](https://tailwindcss.com) + custom design tokens |
+| Audio | HTML5 `<audio>` + [HLS.js](https://github.com/video-dev/hls.js) |
+| Notifications | [Sonner](https://sonner.emilkowal.ski) |
+| Radio data | [Radio Browser API](https://www.radio-browser.info) |
+| Fonts | Manrope (UI) + Fraunces (display) |
+
+## Getting Started
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-# Building For Production
-
-To build this application for production:
+Open [http://localhost:3000](http://localhost:3000).
 
 ```bash
-pnpm build
+pnpm build    # production build
+pnpm start    # serve the built output
 ```
 
-## Testing
+## Project Structure
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
-
-```bash
-pnpm test
+```
+src/
+├── components/
+│   ├── home/          # HeroBanner, FeaturedRail, GenreGrid
+│   ├── player/        # AudioPlayer (bottom bar)
+│   ├── search/        # SearchInput
+│   ├── station/       # StationDetailHero, RelatedStations
+│   └── ui/            # StationCard, FavoriteButton, EmptyState, …
+├── context/
+│   ├── PlayerContext.tsx   # Audio playback state (useReducer + HLS.js)
+│   └── LibraryContext.tsx  # Saved stations (localStorage)
+├── hooks/
+│   └── useDebounce.ts
+├── lib/
+│   ├── radio-browser.ts    # Radio Browser API client
+│   ├── query-keys.ts       # TanStack Query key factory
+│   └── genre-meta.ts       # Genre emoji/colour map + flagEmoji()
+└── routes/
+    ├── __root.tsx
+    ├── index.tsx            # Discover / Home
+    ├── search.tsx
+    ├── library.tsx
+    ├── about.tsx
+    ├── genres/
+    │   ├── index.tsx
+    │   └── $genre.tsx
+    ├── countries/
+    │   ├── index.tsx
+    │   └── $country.tsx
+    └── stations/
+        └── $stationId.tsx
 ```
 
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Uninstall the packages: `pnpm add @tailwindcss/vite tailwindcss --dev`
-
-## Linting & Formatting
-
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
-
-```bash
-pnpm lint
-pnpm format
-pnpm check
-```
-
-
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Snowplow instrumentation
-
-This project uses [`@snowplow/browser-tracker`](https://docs.snowplow.io/docs/sources/trackers/javascript-trackers/web-tracker/) for analytics.
-
-## Configuration
-
-Create a `.env.local` file in the project root:
-
-```env
-VITE_SNOWPLOW_COLLECTOR_URL=https://your-collector.example.com
-```
+## Environment Variables
 
 | Variable | Required | Description |
 |---|---|---|
-| `VITE_SNOWPLOW_COLLECTOR_URL` | Yes | Your Snowplow collector endpoint |
+| `VITE_SNOWPLOW_COLLECTOR_URL` | No | Snowplow analytics collector endpoint (analytics silently disabled if unset) |
 
-The app ID is fixed to `leos-radio-explorer-tanstack`. If `VITE_SNOWPLOW_COLLECTOR_URL` is not set, a warning is logged to the console and tracking is silently disabled — so the app works in development without any configuration.
+## Data Source
 
-## How it works
+Station data is provided by [Radio Browser](https://www.radio-browser.info) — a free, community-maintained, open database of internet radio stations. No API key required.
 
-- **Initialization** — `src/lib/snowplow.ts` calls `newTracker()` once on the client and enables activity tracking (heartbeat every 10 s).
-- **Page views** — `src/components/SnowplowProvider.tsx` is a headless component mounted in the root layout that fires `trackPageView()` on every route change via TanStack Router state.
-- **SSR safe** — initialization is guarded by `typeof window === 'undefined'` so it never runs on the server.
+## License
 
-## Tracking custom events
-
-Import helpers from `src/lib/snowplow.ts` anywhere in the app:
-
-```ts
-import { trackStructEvent, trackSelfDescribingEvent } from '../lib/snowplow'
-
-// Structured event
-trackStructEvent({ category: 'ui', action: 'click', label: 'about-button' })
-
-// Self-describing event (requires an Iglu schema)
-trackSelfDescribingEvent({
-  event: {
-    schema: 'iglu:com.example/button_click/jsonschema/1-0-0',
-    data: { id: 'cta' },
-  },
-})
-```
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+MIT

@@ -3,6 +3,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
+import ErrorBoundary from '../components/ErrorBoundary'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
 import AudioPlayer from '../components/player/AudioPlayer'
@@ -38,6 +39,23 @@ export const Route = createRootRoute({
       {
         title: "Leo's Radio Explorer",
       },
+      {
+        name: 'description',
+        content:
+          "Discover and stream thousands of live radio stations from every genre and corner of the world — free, no sign-up needed.",
+      },
+      {
+        property: 'og:title',
+        content: "Leo's Radio Explorer",
+      },
+      {
+        property: 'og:description',
+        content: 'Stream live radio from around the world.',
+      },
+      {
+        property: 'og:type',
+        content: 'website',
+      },
     ],
     links: [
       {
@@ -62,7 +80,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <PlayerProvider>
               <SnowplowProvider />
               <Header />
-              <div style={{ paddingBottom: 'var(--player-height)' }}>{children}</div>
+              <ErrorBoundary>
+                <div style={{ paddingBottom: 'var(--player-height)' }}>{children}</div>
+              </ErrorBoundary>
               <Footer />
               <AudioPlayer />
               <Toaster
