@@ -1,8 +1,35 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { Radio, Search } from 'lucide-react'
+import { useEffect } from 'react'
 import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
+  const navigate = useNavigate()
+  const router = useRouter()
+
+  // Global Cmd+K / Ctrl+K → focus search
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        const isOnSearch = router.state.location.pathname === '/search'
+        if (isOnSearch) {
+          // Already on the page — just fire the focus event
+          window.dispatchEvent(new CustomEvent('focus-search', { detail: 'search' }))
+        } else {
+          void navigate({ to: '/search' }).then(() => {
+            // Give the route a tick to mount before focusing
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent('focus-search', { detail: 'search' }))
+            }, 120)
+          })
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [navigate, router])
+
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-[var(--header-bg)] px-4 backdrop-blur-lg">
       <nav className="page-wrap flex flex-wrap items-center gap-x-3 gap-y-2 py-3 sm:py-4">
@@ -22,7 +49,8 @@ export default function Header() {
           <Link
             to="/search"
             className="flex h-9 w-9 items-center justify-center rounded-xl text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
-            aria-label="Search stations"
+            aria-label="Search stations (⌘K)"
+            title="Search (⌘K)"
           >
             <Search size={18} />
           </Link>
