@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import HeroBanner from '../components/home/HeroBanner'
 import FeaturedRail from '../components/home/FeaturedRail'
@@ -8,7 +8,7 @@ import SectionHeader from '../components/ui/SectionHeader'
 import { SkeletonGrid } from '../components/ui/SkeletonCard'
 import { getTopStations, getCountries } from '../lib/radio-browser'
 import { queryKeys } from '../lib/query-keys'
-import { Link } from '@tanstack/react-router'
+import { useRecentlyPlayed } from '../hooks/useRecentlyPlayed'
 
 export const Route = createFileRoute('/')({
   head: () => ({ meta: [{ title: "Discover · Leo's Radio Explorer" }] }),
@@ -21,12 +21,45 @@ function Home() {
       <HeroBanner />
 
       <div className="flex flex-col gap-14 pb-16">
+        <RecentlyPlayedSection />
         <FeaturedRail />
         <GenreGrid />
         <TrendingSection />
         <CountryStrip />
       </div>
     </div>
+  )
+}
+
+// ─── Recently Played ──────────────────────────────────────────────────────────
+
+function RecentlyPlayedSection() {
+  const recent = useRecentlyPlayed()
+
+  // Only render once the user has played at least one station
+  if (recent.length === 0) return null
+
+  return (
+    <section className="page-wrap px-4">
+      <SectionHeader
+        title="Recently Played"
+        subtitle="Jump back in"
+      />
+
+      <div className="-mx-4 mt-6 overflow-x-auto px-4">
+        <div className="flex gap-3 pb-4" style={{ width: 'max-content' }}>
+          {recent.map((station, i) => (
+            <div
+              key={station.stationuuid}
+              className="w-44 rise-in flex-shrink-0"
+              style={{ animationDelay: `${i * 40}ms` }}
+            >
+              <StationCard station={station} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 

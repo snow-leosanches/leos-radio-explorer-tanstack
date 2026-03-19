@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { registerClick, type Station } from '../lib/radio-browser'
+import { addToRecentlyPlayed } from '../lib/recently-played'
 import { trackStructEvent } from '../lib/snowplow'
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -263,6 +264,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!state.station) return
     if (state.status === 'playing') {
+      addToRecentlyPlayed(state.station)
       trackStructEvent({
         category: 'player',
         action: 'play',

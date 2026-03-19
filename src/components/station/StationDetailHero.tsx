@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
-import { ExternalLink, Loader2, Pause, Play, Radio, ThumbsUp } from 'lucide-react'
+import { ExternalLink, Loader2, Pause, Play, Radio, Share2, ThumbsUp } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { usePlayer } from '../../context/PlayerContext'
 import { flagEmoji } from '../../lib/genre-meta'
 import { parseTags, stationGradient, voteStation, type Station } from '../../lib/radio-browser'
@@ -32,6 +33,20 @@ export default function StationDetailHero({ station }: StationDetailHeroProps) {
     setVoted(localStorage.getItem(VOTED_KEY(station.stationuuid)) === '1')
     setVoteCount(station.votes)
   }, [station.stationuuid, station.votes])
+
+  async function handleShare() {
+    const url = typeof window !== 'undefined' ? window.location.href : ''
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: station.name, url })
+      } catch {
+        // User dismissed the share sheet — no toast needed
+      }
+    } else {
+      await navigator.clipboard.writeText(url)
+      toast('Link copied to clipboard')
+    }
+  }
 
   async function handleVote() {
     if (voted || voting) return
@@ -158,6 +173,16 @@ export default function StationDetailHero({ station }: StationDetailHeroProps) {
 
               {/* Save to Library */}
               <FavoriteButton station={station} size="md" />
+
+              {/* Share */}
+              <button
+                onClick={handleShare}
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--line)] bg-[var(--surface)] text-[var(--sea-ink-soft)] transition hover:border-[var(--lagoon-deep)] hover:text-[var(--lagoon-deep)]"
+                aria-label="Share station"
+                title="Share"
+              >
+                <Share2 size={16} />
+              </button>
 
               {/* Vote */}
               <button
