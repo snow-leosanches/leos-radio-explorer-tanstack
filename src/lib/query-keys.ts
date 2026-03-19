@@ -6,9 +6,8 @@ export const queryKeys = {
     top: (limit?: number) => ['stations', 'top', limit ?? 20] as const,
     search: (params: Record<string, unknown>) => ['stations', 'search', params] as const,
     byUuid: (uuid: string) => ['stations', 'uuid', uuid] as const,
-    byTag: (tag: string, limit?: number) => ['stations', 'tag', tag, limit ?? 40] as const,
-    byCountry: (countrycode: string, limit?: number) =>
-      ['stations', 'country', countrycode, limit ?? 40] as const,
+    byTag: (tag: string) => ['stations', 'tag', tag] as const,
+    byCountry: (countrycode: string) => ['stations', 'country', countrycode] as const,
   },
   tags: {
     top: (limit?: number) => ['tags', 'top', limit ?? 60] as const,

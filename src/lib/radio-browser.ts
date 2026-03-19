@@ -91,17 +91,29 @@ export async function getStationByUuid(uuid: string): Promise<Station | null> {
   return results[0] ?? null
 }
 
-export async function getStationsByTag(tag: string, limit = 40): Promise<Station[]> {
+export const PAGE_SIZE = 24
+
+export async function getStationsByTag(
+  tag: string,
+  limit = PAGE_SIZE,
+  offset = 0,
+): Promise<Station[]> {
   return apiFetch<Station[]>(`/stations/bytag/${encodeURIComponent(tag)}`, {
     limit: String(limit),
+    offset: String(offset),
     order: 'votes',
     reverse: 'true',
   })
 }
 
-export async function getStationsByCountry(countrycode: string, limit = 40): Promise<Station[]> {
+export async function getStationsByCountry(
+  countrycode: string,
+  limit = PAGE_SIZE,
+  offset = 0,
+): Promise<Station[]> {
   return apiFetch<Station[]>(`/stations/bycountryexact/${encodeURIComponent(countrycode)}`, {
     limit: String(limit),
+    offset: String(offset),
     order: 'votes',
     reverse: 'true',
   })
