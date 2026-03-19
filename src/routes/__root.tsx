@@ -1,13 +1,29 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'sonner'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
+import AudioPlayer from '../components/player/AudioPlayer'
 import { SnowplowProvider } from '../components/SnowplowProvider'
+import { LibraryProvider } from '../context/LibraryContext'
+import { PlayerProvider } from '../context/PlayerContext'
 
 import appCss from '../styles.css?url'
 
 const THEME_INIT_SCRIPT = `(function(){try{var stored=window.localStorage.getItem('theme');var mode=(stored==='light'||stored==='dark'||stored==='auto')?stored:'auto';var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;var resolved=mode==='auto'?(prefersDark?'dark':'light'):mode;var root=document.documentElement;root.classList.remove('light','dark');root.classList.add(resolved);if(mode==='auto'){root.removeAttribute('data-theme')}else{root.setAttribute('data-theme',mode)}root.style.colorScheme=resolved;}catch(e){}})();`
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
 export const Route = createRootRoute({
   head: () => ({
@@ -20,7 +36,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: "Leo's Radio Explorer",
       },
     ],
     links: [
@@ -41,22 +57,40 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
-        <SnowplowProvider />
-        <Header />
-        {children}
-        <Footer />
-        <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
-        <Scripts />
+        <QueryClientProvider client={queryClient}>
+          <LibraryProvider>
+            <PlayerProvider>
+              <SnowplowProvider />
+              <Header />
+              <div style={{ paddingBottom: 'var(--player-height)' }}>{children}</div>
+              <Footer />
+              <AudioPlayer />
+              <Toaster
+                position="bottom-center"
+                offset={80}
+                toastOptions={{
+                  style: {
+                    background: 'var(--surface-strong)',
+                    color: 'var(--sea-ink)',
+                    border: '1px solid var(--line)',
+                  },
+                }}
+              />
+              <TanStackDevtools
+                config={{
+                  position: 'bottom-right',
+                }}
+                plugins={[
+                  {
+                    name: 'Tanstack Router',
+                    render: <TanStackRouterDevtoolsPanel />,
+                  },
+                ]}
+              />
+              <Scripts />
+            </PlayerProvider>
+          </LibraryProvider>
+        </QueryClientProvider>
       </body>
     </html>
   )
