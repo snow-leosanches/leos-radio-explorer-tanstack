@@ -1,7 +1,8 @@
-import { Heart, Loader2, Pause, Play } from 'lucide-react'
-import { useLibrary } from '../../context/LibraryContext'
+import { Link } from '@tanstack/react-router'
+import { ExternalLink, Loader2, Pause, Play } from 'lucide-react'
 import { usePlayer } from '../../context/PlayerContext'
 import { parseTags, stationGradient, type Station } from '../../lib/radio-browser'
+import FavoriteButton from './FavoriteButton'
 
 interface StationCardProps {
   station: Station
@@ -11,12 +12,10 @@ interface StationCardProps {
 
 export default function StationCard({ station, variant = 'card' }: StationCardProps) {
   const { state, toggle } = usePlayer()
-  const { isSaved, toggle: toggleLibrary } = useLibrary()
 
   const isActive = state.station?.stationuuid === station.stationuuid
   const isPlaying = isActive && state.status === 'playing'
   const isLoading = isActive && state.status === 'loading'
-  const saved = isSaved(station.stationuuid)
   const gradient = stationGradient(station.stationuuid)
   const tags = parseTags(station.tags)
 
@@ -43,7 +42,7 @@ export default function StationCard({ station, variant = 'card' }: StationCardPr
               {isLoading ? (
                 <Loader2 size={16} className="animate-spin text-white" />
               ) : isPlaying ? (
-                <span className="flex gap-0.5">
+                <span className="flex gap-0.5 items-end h-3">
                   {[0, 1, 2].map((i) => (
                     <span
                       key={i}
@@ -62,7 +61,14 @@ export default function StationCard({ station, variant = 'card' }: StationCardPr
 
         {/* Info */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-[var(--sea-ink)]">{station.name}</p>
+          <Link
+            to="/stations/$stationId"
+            params={{ stationId: station.stationuuid }}
+            className="block truncate text-sm font-semibold text-[var(--sea-ink)] no-underline hover:text-[var(--lagoon-deep)]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {station.name}
+          </Link>
           <p className="truncate text-xs text-[var(--sea-ink-soft)]">
             {tags[0] ?? station.country ?? 'Radio'}
           </p>
@@ -70,19 +76,7 @@ export default function StationCard({ station, variant = 'card' }: StationCardPr
 
         {/* Actions */}
         <div className="flex flex-shrink-0 items-center gap-1">
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              toggleLibrary(station)
-            }}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--sea-ink-soft)] transition hover:text-[var(--lagoon-deep)]"
-            aria-label={saved ? 'Remove from library' : 'Save to library'}
-          >
-            <Heart
-              size={15}
-              className={saved ? 'fill-[var(--lagoon-deep)] text-[var(--lagoon-deep)]' : ''}
-            />
-          </button>
+          <FavoriteButton station={station} size="sm" />
           <button
             onClick={() => toggle(station)}
             className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--lagoon-deep)] text-white transition hover:opacity-90"
@@ -103,11 +97,12 @@ export default function StationCard({ station, variant = 'card' }: StationCardPr
 
   // Default: card variant
   return (
-    <div className="station-card group flex flex-col" onClick={() => toggle(station)}>
-      {/* Artwork area */}
+    <div className="station-card group flex flex-col">
+      {/* Artwork area — click to play */}
       <div
-        className="relative aspect-square w-full overflow-hidden rounded-t-[calc(1rem-1px)]"
+        className="relative aspect-square w-full cursor-pointer overflow-hidden rounded-t-[calc(1rem-1px)]"
         style={{ background: gradient }}
+        onClick={() => toggle(station)}
       >
         {station.favicon && (
           <img
@@ -141,7 +136,7 @@ export default function StationCard({ station, variant = 'card' }: StationCardPr
           </div>
         </div>
 
-        {/* Live badge when playing */}
+        {/* Live badge */}
         {isPlaying && (
           <span className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-[var(--lagoon)] px-2 py-0.5 text-[10px] font-bold uppercase text-white">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
@@ -153,22 +148,14 @@ export default function StationCard({ station, variant = 'card' }: StationCardPr
       {/* Card body */}
       <div className="flex flex-1 flex-col gap-1.5 p-3">
         <div className="flex items-start justify-between gap-1">
-          <p className="line-clamp-2 text-sm font-semibold leading-snug text-[var(--sea-ink)]">
-            {station.name}
-          </p>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              toggleLibrary(station)
-            }}
-            className="mt-0.5 flex-shrink-0 text-[var(--sea-ink-soft)] transition hover:text-[var(--lagoon-deep)]"
-            aria-label={saved ? 'Remove from library' : 'Save to library'}
+          <Link
+            to="/stations/$stationId"
+            params={{ stationId: station.stationuuid }}
+            className="line-clamp-2 text-sm font-semibold leading-snug text-[var(--sea-ink)] no-underline hover:text-[var(--lagoon-deep)]"
           >
-            <Heart
-              size={14}
-              className={saved ? 'fill-[var(--lagoon-deep)] text-[var(--lagoon-deep)]' : ''}
-            />
-          </button>
+            {station.name}
+          </Link>
+          <FavoriteButton station={station} size="sm" className="mt-0.5 flex-shrink-0" />
         </div>
 
         {tags.length > 0 && (

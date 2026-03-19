@@ -15,6 +15,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GenresIndexRouteImport } from './routes/genres/index'
 import { Route as CountriesIndexRouteImport } from './routes/countries/index'
+import { Route as StationsStationIdRouteImport } from './routes/stations/$stationId'
 import { Route as GenresGenreRouteImport } from './routes/genres/$genre'
 import { Route as CountriesCountryRouteImport } from './routes/countries/$country'
 
@@ -48,6 +49,11 @@ const CountriesIndexRoute = CountriesIndexRouteImport.update({
   path: '/countries/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StationsStationIdRoute = StationsStationIdRouteImport.update({
+  id: '/stations/$stationId',
+  path: '/stations/$stationId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GenresGenreRoute = GenresGenreRouteImport.update({
   id: '/genres/$genre',
   path: '/genres/$genre',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/genres/$genre': typeof GenresGenreRoute
+  '/stations/$stationId': typeof StationsStationIdRoute
   '/countries/': typeof CountriesIndexRoute
   '/genres/': typeof GenresIndexRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/genres/$genre': typeof GenresGenreRoute
+  '/stations/$stationId': typeof StationsStationIdRoute
   '/countries': typeof CountriesIndexRoute
   '/genres': typeof GenresIndexRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/genres/$genre': typeof GenresGenreRoute
+  '/stations/$stationId': typeof StationsStationIdRoute
   '/countries/': typeof CountriesIndexRoute
   '/genres/': typeof GenresIndexRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/countries/$country'
     | '/genres/$genre'
+    | '/stations/$stationId'
     | '/countries/'
     | '/genres/'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/countries/$country'
     | '/genres/$genre'
+    | '/stations/$stationId'
     | '/countries'
     | '/genres'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/countries/$country'
     | '/genres/$genre'
+    | '/stations/$stationId'
     | '/countries/'
     | '/genres/'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   CountriesCountryRoute: typeof CountriesCountryRoute
   GenresGenreRoute: typeof GenresGenreRoute
+  StationsStationIdRoute: typeof StationsStationIdRoute
   CountriesIndexRoute: typeof CountriesIndexRoute
   GenresIndexRoute: typeof GenresIndexRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CountriesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stations/$stationId': {
+      id: '/stations/$stationId'
+      path: '/stations/$stationId'
+      fullPath: '/stations/$stationId'
+      preLoaderRoute: typeof StationsStationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/genres/$genre': {
       id: '/genres/$genre'
       path: '/genres/$genre'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   CountriesCountryRoute: CountriesCountryRoute,
   GenresGenreRoute: GenresGenreRoute,
+  StationsStationIdRoute: StationsStationIdRoute,
   CountriesIndexRoute: CountriesIndexRoute,
   GenresIndexRoute: GenresIndexRoute,
 }
