@@ -1,7 +1,9 @@
 // Radio Browser API client
 // Docs: https://api.radio-browser.info
 
-const BASE_URL = 'https://de1.api.radio-browser.info/json'
+// all.api.radio-browser.info is a DNS round-robin that resolves to the nearest
+// community-operated server, improving reliability over a single hardcoded host.
+const BASE_URL = 'https://all.api.radio-browser.info/json'
 
 const DEFAULT_HEADERS = {
   'User-Agent': 'LeoRadioExplorer/1.0',
@@ -137,10 +139,7 @@ export async function getCountries(limit = 200): Promise<Country[]> {
 
 /** Notify the API a station was clicked (courtesy call). Fire-and-forget. */
 export function registerClick(uuid: string): void {
-  fetch(`${BASE_URL}/url/${uuid}`, {
-    method: 'POST',
-    headers: DEFAULT_HEADERS,
-  }).catch(() => {
+  apiFetch(`/url/${uuid}`, undefined).catch(() => {
     // best-effort only
   })
 }

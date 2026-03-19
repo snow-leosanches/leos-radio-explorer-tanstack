@@ -1,4 +1,3 @@
-import Hls from 'hls.js'
 import {
   createContext,
   useCallback,
@@ -82,7 +81,8 @@ const PlayerContext = createContext<PlayerContextValue | null>(null)
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(playerReducer, initialState)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const hlsRef = useRef<Hls | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hlsRef = useRef<any>(null)
 
   // Create the audio element once
   useEffect(() => {
@@ -133,16 +133,32 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
     const url = station.url_resolved || station.url
 
-    if (station.hls === 1 && Hls.isSupported()) {
-      const hls = new Hls({ enableWorker: false })
-      hlsRef.current = hls
-      hls.loadSource(url)
-      hls.attachMedia(audio)
-      hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(() => null))
-      hls.on(Hls.Events.ERROR, (_evt, data) => {
-        if (data.fatal) {
-          dispatch({ type: 'ERROR', message: 'Stream unavailable. Try another station.' })
+    if (station.hls === 1) {
+      // Lazy-load hls.js only when an HLS stream is actually needed.
+      // This keeps it out of the initial JS bundle (~1.1 MB minified).
+      import('hls.js').then(({ default: Hls }) => {
+        if (!Hls.isSupported()) {
+          // Safari has native HLS — fall through to direct src
+          const a = audioRef.current
+          if (!a) return
+          a.src = url
+          a.play().catch(() => {
+            dispatch({ type: 'ERROR', message: 'Stream unavailable. Try another station.' })
+          })
+          return
         }
+        const hls = new Hls({ enableWorker: false })
+        hlsRef.current = hls
+        hls.loadSource(url)
+        hls.attachMedia(audio)
+        hls.on(Hls.Events.MANIFEST_PARSED, () => audio.play().catch(() => null))
+        hls.on(Hls.Events.ERROR, (_evt, data) => {
+          if (data.fatal) {
+            dispatch({ type: 'ERROR', message: 'Stream unavailable. Try another station.' })
+          }
+        })
+      }).catch(() => {
+        dispatch({ type: 'ERROR', message: 'Stream unavailable. Try another station.' })
       })
     } else {
       audio.src = url

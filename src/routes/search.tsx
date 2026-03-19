@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { Globe, Mic2, Music, Radio } from 'lucide-react'
+import { Globe, Languages, Mic2, Music, Radio } from 'lucide-react'
 import SearchInput from '../components/search/SearchInput'
 import StationCard from '../components/ui/StationCard'
 import { SkeletonGrid } from '../components/ui/SkeletonCard'
@@ -16,6 +16,7 @@ export const Route = createFileRoute('/search')({
     q:           typeof raw['q'] === 'string'           ? raw['q']           : '',
     tag:         typeof raw['tag'] === 'string'         ? raw['tag']         : '',
     countrycode: typeof raw['countrycode'] === 'string' ? raw['countrycode'] : '',
+    language:    typeof raw['language'] === 'string'    ? raw['language']    : '',
   }),
   head: ({ search }) => ({
     meta: [{ title: search.q ? `"${search.q}" · Search · Leo's Radio Explorer` : "Search · Leo's Radio Explorer" }],
@@ -23,7 +24,7 @@ export const Route = createFileRoute('/search')({
   component: SearchPage,
 })
 
-// ─── Featured country chips ───────────────────────────────────────────────────
+// ─── Static filter data ───────────────────────────────────────────────────────
 
 const COUNTRY_CHIPS = [
   { code: 'US', label: '🇺🇸 USA' },
@@ -36,11 +37,32 @@ const COUNTRY_CHIPS = [
   { code: 'ES', label: '🇪🇸 Spain' },
 ]
 
+const LANGUAGE_CHIPS = [
+  { code: 'english',    label: 'English' },
+  { code: 'spanish',    label: 'Spanish' },
+  { code: 'portuguese', label: 'Portuguese' },
+  { code: 'french',     label: 'French' },
+  { code: 'german',     label: 'German' },
+  { code: 'japanese',   label: 'Japanese' },
+  { code: 'arabic',     label: 'Arabic' },
+  { code: 'hindi',      label: 'Hindi' },
+]
+
+// ─── Active-chip style helper ─────────────────────────────────────────────────
+
+const chipClass = (active: boolean) =>
+  [
+    'genre-pill cursor-pointer transition',
+    active
+      ? 'border-[var(--lagoon-deep)] bg-[color-mix(in_oklab,var(--lagoon)_15%,var(--chip-bg))] text-[var(--lagoon-deep)]'
+      : 'hover:border-[var(--lagoon-deep)] hover:text-[var(--lagoon-deep)]',
+  ].join(' ')
+
 // ─── Page component ───────────────────────────────────────────────────────────
 
 function SearchPage() {
   const navigate = useNavigate({ from: '/search' })
-  const { q, tag, countrycode } = Route.useSearch()
+  const { q, tag, countrycode, language } = Route.useSearch()
 
   // Local input state — driven by URL, debounced before writing back
   const [inputValue, setInputValue] = useState(q)
@@ -57,8 +79,8 @@ function SearchPage() {
     setInputValue(q)
   }, [q])
 
-  // Toggle a filter chip value in the URL
-  function setFilter(key: 'tag' | 'countrycode', value: string) {
+  // Toggle a filter chip value in the URL (deselects if already active)
+  function setFilter(key: 'tag' | 'countrycode' | 'language', value: string) {
     void navigate({
       search: (prev) => ({
         ...prev,
@@ -75,7 +97,7 @@ function SearchPage() {
   })
 
   // Derive whether we have an active query
-  const hasQuery = q.trim().length > 0 || tag !== '' || countrycode !== ''
+  const hasQuery = q.trim().length > 0 || tag !== '' || countrycode !== '' || language !== ''
 
   // Search query — only fires when there's something to search
   const {
@@ -84,12 +106,13 @@ function SearchPage() {
     isFetching,
     isError,
   } = useQuery({
-    queryKey: queryKeys.stations.search({ q, tag, countrycode }),
+    queryKey: queryKeys.stations.search({ q, tag, countrycode, language }),
     queryFn: () =>
       searchStations({
         name: q.trim() || undefined,
         tag: tag || undefined,
         countrycode: countrycode || undefined,
+        language: language || undefined,
         order: 'votes',
         reverse: true,
         limit: 48,
@@ -125,12 +148,7 @@ function SearchPage() {
                 key={t.name}
                 type="button"
                 onClick={() => setFilter('tag', t.name)}
-                className={[
-                  'genre-pill cursor-pointer capitalize transition',
-                  tag === t.name
-                    ? 'border-[var(--lagoon-deep)] bg-[color-mix(in_oklab,var(--lagoon)_15%,var(--chip-bg))] text-[var(--lagoon-deep)]'
-                    : 'hover:border-[var(--lagoon-deep)] hover:text-[var(--lagoon-deep)]',
-                ].join(' ')}
+                className={chipClass(tag === t.name)}
               >
                 {t.name}
               </button>
@@ -149,14 +167,28 @@ function SearchPage() {
                 key={c.code}
                 type="button"
                 onClick={() => setFilter('countrycode', c.code)}
-                className={[
-                  'genre-pill cursor-pointer transition',
-                  countrycode === c.code
-                    ? 'border-[var(--lagoon-deep)] bg-[color-mix(in_oklab,var(--lagoon)_15%,var(--chip-bg))] text-[var(--lagoon-deep)]'
-                    : 'hover:border-[var(--lagoon-deep)] hover:text-[var(--lagoon-deep)]',
-                ].join(' ')}
+                className={chipClass(countrycode === c.code)}
               >
                 {c.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Language chips */}
+        <div>
+          <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-[var(--sea-ink-soft)]">
+            <Languages size={11} /> Language
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {LANGUAGE_CHIPS.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                onClick={() => setFilter('language', l.code)}
+                className={chipClass(language === l.code)}
+              >
+                {l.label}
               </button>
             ))}
           </div>
@@ -192,7 +224,7 @@ function SearchPage() {
           <p className="text-3xl">🔍</p>
           <p className="mt-3 text-base font-semibold text-[var(--sea-ink)]">No stations found</p>
           <p className="mt-1 text-sm text-[var(--sea-ink-soft)]">
-            Try a different name, genre, or country.
+            Try a different name, genre, country, or language.
           </p>
         </div>
       )}
@@ -232,7 +264,7 @@ function IdleState() {
       <div>
         <h2 className="text-lg font-semibold text-[var(--sea-ink)]">Search the world's radio</h2>
         <p className="mt-1 text-sm text-[var(--sea-ink-soft)]">
-          Type a station name, or pick a genre or country filter above.
+          Type a station name, or pick a genre, country, or language filter above.
         </p>
       </div>
       <div className="flex flex-wrap justify-center gap-3">

@@ -84,6 +84,13 @@ export default function Header() {
             Countries
           </Link>
           <Link
+            to="/about"
+            className="nav-link"
+            activeProps={{ className: 'nav-link is-active' }}
+          >
+            About
+          </Link>
+          <Link
             to="/library"
             className="nav-link inline-flex items-center gap-1.5"
             activeProps={{ className: 'nav-link is-active' }}
