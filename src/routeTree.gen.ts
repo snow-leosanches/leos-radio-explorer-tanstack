@@ -9,9 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as LibraryRouteImport } from './routes/library'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GenresIndexRouteImport } from './routes/genres/index'
+import { Route as CountriesIndexRouteImport } from './routes/countries/index'
+import { Route as GenresGenreRouteImport } from './routes/genres/$genre'
+import { Route as CountriesCountryRouteImport } from './routes/countries/$country'
 
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -22,35 +38,118 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GenresIndexRoute = GenresIndexRouteImport.update({
+  id: '/genres/',
+  path: '/genres/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CountriesIndexRoute = CountriesIndexRouteImport.update({
+  id: '/countries/',
+  path: '/countries/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GenresGenreRoute = GenresGenreRouteImport.update({
+  id: '/genres/$genre',
+  path: '/genres/$genre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CountriesCountryRoute = CountriesCountryRouteImport.update({
+  id: '/countries/$country',
+  path: '/countries/$country',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/library': typeof LibraryRoute
+  '/search': typeof SearchRoute
+  '/countries/$country': typeof CountriesCountryRoute
+  '/genres/$genre': typeof GenresGenreRoute
+  '/countries/': typeof CountriesIndexRoute
+  '/genres/': typeof GenresIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/library': typeof LibraryRoute
+  '/search': typeof SearchRoute
+  '/countries/$country': typeof CountriesCountryRoute
+  '/genres/$genre': typeof GenresGenreRoute
+  '/countries': typeof CountriesIndexRoute
+  '/genres': typeof GenresIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/library': typeof LibraryRoute
+  '/search': typeof SearchRoute
+  '/countries/$country': typeof CountriesCountryRoute
+  '/genres/$genre': typeof GenresGenreRoute
+  '/countries/': typeof CountriesIndexRoute
+  '/genres/': typeof GenresIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/library'
+    | '/search'
+    | '/countries/$country'
+    | '/genres/$genre'
+    | '/countries/'
+    | '/genres/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/' | '/about'
+  to:
+    | '/'
+    | '/about'
+    | '/library'
+    | '/search'
+    | '/countries/$country'
+    | '/genres/$genre'
+    | '/countries'
+    | '/genres'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/library'
+    | '/search'
+    | '/countries/$country'
+    | '/genres/$genre'
+    | '/countries/'
+    | '/genres/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  LibraryRoute: typeof LibraryRoute
+  SearchRoute: typeof SearchRoute
+  CountriesCountryRoute: typeof CountriesCountryRoute
+  GenresGenreRoute: typeof GenresGenreRoute
+  CountriesIndexRoute: typeof CountriesIndexRoute
+  GenresIndexRoute: typeof GenresIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -65,12 +164,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/genres/': {
+      id: '/genres/'
+      path: '/genres'
+      fullPath: '/genres/'
+      preLoaderRoute: typeof GenresIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/countries/': {
+      id: '/countries/'
+      path: '/countries'
+      fullPath: '/countries/'
+      preLoaderRoute: typeof CountriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/genres/$genre': {
+      id: '/genres/$genre'
+      path: '/genres/$genre'
+      fullPath: '/genres/$genre'
+      preLoaderRoute: typeof GenresGenreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/countries/$country': {
+      id: '/countries/$country'
+      path: '/countries/$country'
+      fullPath: '/countries/$country'
+      preLoaderRoute: typeof CountriesCountryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  LibraryRoute: LibraryRoute,
+  SearchRoute: SearchRoute,
+  CountriesCountryRoute: CountriesCountryRoute,
+  GenresGenreRoute: GenresGenreRoute,
+  CountriesIndexRoute: CountriesIndexRoute,
+  GenresIndexRoute: GenresIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

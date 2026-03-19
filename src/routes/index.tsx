@@ -1,87 +1,129 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
+import HeroBanner from '../components/home/HeroBanner'
+import FeaturedRail from '../components/home/FeaturedRail'
+import GenreGrid from '../components/home/GenreGrid'
+import StationCard from '../components/ui/StationCard'
+import SectionHeader from '../components/ui/SectionHeader'
+import { SkeletonGrid } from '../components/ui/SkeletonCard'
+import { getTopStations, getCountries } from '../lib/radio-browser'
+import { queryKeys } from '../lib/query-keys'
+import { Link } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/')({ component: App })
+export const Route = createFileRoute('/')({
+  head: () => ({ meta: [{ title: "Discover · Leo's Radio Explorer" }] }),
+  component: Home,
+})
 
-function App() {
+function Home() {
   return (
-    <main className="page-wrap px-4 pb-8 pt-14">
-      <section className="island-shell rise-in relative overflow-hidden rounded-[2rem] px-6 py-10 sm:px-10 sm:py-14">
-        <div className="pointer-events-none absolute -left-20 -top-24 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(79,184,178,0.32),transparent_66%)]" />
-        <div className="pointer-events-none absolute -bottom-20 -right-20 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(47,106,74,0.18),transparent_66%)]" />
-        <p className="island-kicker mb-3">TanStack Start Base Template</p>
-        <h1 className="display-title mb-5 max-w-3xl text-4xl leading-[1.02] font-bold tracking-tight text-[var(--sea-ink)] sm:text-6xl">
-          Start simple, ship quickly.
-        </h1>
-        <p className="mb-8 max-w-2xl text-base text-[var(--sea-ink-soft)] sm:text-lg">
-          This base starter intentionally keeps things light: two routes, clean
-          structure, and the essentials you need to build from scratch.
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <a
-            href="/about"
-            className="rounded-full border border-[rgba(50,143,151,0.3)] bg-[rgba(79,184,178,0.14)] px-5 py-2.5 text-sm font-semibold text-[var(--lagoon-deep)] no-underline transition hover:-translate-y-0.5 hover:bg-[rgba(79,184,178,0.24)]"
-          >
-            About This Starter
-          </a>
-          <a
-            href="https://tanstack.com/router"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full border border-[rgba(23,58,64,0.2)] bg-white/50 px-5 py-2.5 text-sm font-semibold text-[var(--sea-ink)] no-underline transition hover:-translate-y-0.5 hover:border-[rgba(23,58,64,0.35)]"
-          >
-            Router Guide
-          </a>
-        </div>
-      </section>
+    <div>
+      <HeroBanner />
 
-      <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          [
-            'Type-Safe Routing',
-            'Routes and links stay in sync across every page.',
-          ],
-          [
-            'Server Functions',
-            'Call server code from your UI without creating API boilerplate.',
-          ],
-          [
-            'Streaming by Default',
-            'Ship progressively rendered responses for faster experiences.',
-          ],
-          [
-            'Tailwind Native',
-            'Design quickly with utility-first styling and reusable tokens.',
-          ],
-        ].map(([title, desc], index) => (
-          <article
-            key={title}
-            className="island-shell feature-card rise-in rounded-2xl p-5"
-            style={{ animationDelay: `${index * 90 + 80}ms` }}
+      <div className="flex flex-col gap-14 pb-16">
+        <FeaturedRail />
+        <GenreGrid />
+        <TrendingSection />
+        <CountryStrip />
+      </div>
+    </div>
+  )
+}
+
+// ─── Trending Now ─────────────────────────────────────────────────────────────
+
+function TrendingSection() {
+  const { data: stations, isLoading, isError } = useQuery({
+    queryKey: queryKeys.stations.top(12),
+    queryFn: () => getTopStations(12),
+  })
+
+  return (
+    <section className="page-wrap px-4">
+      <SectionHeader
+        title="Trending Now"
+        subtitle="Most-voted stations right now"
+        href="/genres"
+        hrefLabel="See more"
+      />
+
+      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {isLoading && <SkeletonGrid count={8} variant="card" />}
+
+        {isError && (
+          <p className="col-span-full text-sm text-[var(--sea-ink-soft)]">
+            Could not load stations.
+          </p>
+        )}
+
+        {stations?.slice(0, 8).map((station, i) => (
+          <div
+            key={station.stationuuid}
+            className="rise-in"
+            style={{ animationDelay: `${i * 60}ms` }}
           >
-            <h2 className="mb-2 text-base font-semibold text-[var(--sea-ink)]">
-              {title}
-            </h2>
-            <p className="m-0 text-sm text-[var(--sea-ink-soft)]">{desc}</p>
-          </article>
+            <StationCard station={station} />
+          </div>
         ))}
-      </section>
+      </div>
+    </section>
+  )
+}
 
-      <section className="island-shell mt-8 rounded-2xl p-6">
-        <p className="island-kicker mb-2">Quick Start</p>
-        <ul className="m-0 list-disc space-y-2 pl-5 text-sm text-[var(--sea-ink-soft)]">
-          <li>
-            Edit <code>src/routes/index.tsx</code> to customize the home page.
-          </li>
-          <li>
-            Update <code>src/components/Header.tsx</code> and{' '}
-            <code>src/components/Footer.tsx</code> for brand links.
-          </li>
-          <li>
-            Add routes in <code>src/routes</code> and tweak visual tokens in{' '}
-            <code>src/styles.css</code>.
-          </li>
-        </ul>
-      </section>
-    </main>
+// ─── Country Strip ────────────────────────────────────────────────────────────
+
+const FEATURED_COUNTRIES = [
+  { code: 'US', name: 'United States', flag: '🇺🇸' },
+  { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
+  { code: 'DE', name: 'Germany',        flag: '🇩🇪' },
+  { code: 'BR', name: 'Brazil',         flag: '🇧🇷' },
+  { code: 'FR', name: 'France',         flag: '🇫🇷' },
+  { code: 'JP', name: 'Japan',          flag: '🇯🇵' },
+  { code: 'AU', name: 'Australia',      flag: '🇦🇺' },
+  { code: 'ES', name: 'Spain',          flag: '🇪🇸' },
+]
+
+function CountryStrip() {
+  const { data: countries } = useQuery({
+    queryKey: queryKeys.countries.all(),
+    queryFn: () => getCountries(),
+  })
+
+  // Merge static list with live station counts
+  const enriched = FEATURED_COUNTRIES.map((c) => {
+    const live = countries?.find((x) => x.iso_3166_1.toUpperCase() === c.code)
+    return { ...c, stationcount: live?.stationcount ?? null }
+  })
+
+  return (
+    <section className="page-wrap px-4">
+      <SectionHeader
+        title="Radio Around the World"
+        subtitle="Tune into a country"
+        href="/countries"
+        hrefLabel="All countries"
+      />
+
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+        {enriched.map((c) => (
+          <Link
+            key={c.code}
+            to="/countries/$country"
+            params={{ country: c.code }}
+            className="group island-shell flex flex-col items-center gap-2 rounded-2xl p-4 no-underline transition hover:-translate-y-0.5"
+          >
+            <span className="text-3xl">{c.flag}</span>
+            <div className="text-center">
+              <p className="text-xs font-semibold text-[var(--sea-ink)]">{c.name}</p>
+              {c.stationcount !== null && (
+                <p className="text-[10px] text-[var(--sea-ink-soft)]">
+                  {c.stationcount.toLocaleString()} stations
+                </p>
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
   )
 }
