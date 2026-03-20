@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, ReactNode } from 'react'
+import { createContext, useContext, useMemo, type ReactNode } from 'react'
 
 interface SnowplowSignalsContextValue {
   baseUrl: string | null

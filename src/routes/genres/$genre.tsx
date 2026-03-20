@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { ChevronRight } from 'lucide-react'
 import StationGrid from '../../components/ui/StationGrid'
 import { getGenreMeta } from '../../lib/genre-meta'
 import { getStationsByTag } from '../../lib/radio-browser'
 import { queryKeys } from '../../lib/query-keys'
+import { trackGenreVisitedSpec } from '../../../snowtype/snowplow'
 
 export const Route = createFileRoute('/genres/$genre')({
   head: ({ params }) => ({
@@ -15,6 +17,14 @@ export const Route = createFileRoute('/genres/$genre')({
 function GenreStations() {
   const { genre } = Route.useParams()
   const meta = getGenreMeta(genre)
+
+  useEffect(() => {
+    try {
+      trackGenreVisitedSpec({ genre_name: genre })
+    } catch (e) {
+      console.error('[Snowplow] Error tracking genre_visited:', e)
+    }
+  }, [genre])
 
   return (
     <main className="pb-12">

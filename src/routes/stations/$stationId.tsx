@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronRight } from 'lucide-react'
 import StationDetailHero from '../../components/station/StationDetailHero'
 import RelatedStations from '../../components/station/RelatedStations'
-import { getStationByUuid } from '../../lib/radio-browser'
+import { getStationByUuid, parseTags } from '../../lib/radio-browser'
 import { queryKeys } from '../../lib/query-keys'
+import { trackRadioVisitedSpec } from '../../../snowtype/snowplow'
 
 export const Route = createFileRoute('/stations/$stationId')({
   head: ({ params }) => ({
@@ -45,6 +47,21 @@ function StationDetailPage() {
     queryKey: queryKeys.stations.byUuid(stationId),
     queryFn: () => getStationByUuid(stationId),
   })
+
+  useEffect(() => {
+    if (!station) return
+    try {
+      trackRadioVisitedSpec({
+        station_id: station.stationuuid,
+        station_name: station.name,
+        genres: parseTags(station.tags),
+        state: station.state || null,
+        city: null,
+      })
+    } catch (e) {
+      console.error('[Snowplow] Error tracking radio_visited:', e)
+    }
+  }, [station?.stationuuid])
 
   return (
     <main className="pb-16">

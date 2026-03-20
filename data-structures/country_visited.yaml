@@ -1,0 +1,28 @@
+apiVersion: v1
+resourceType: data-structure
+meta:
+  hidden: false
+  schemaType: event
+  customData: {}
+data:
+  $schema: http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#
+  self:
+    vendor: com.leosradioexplorer
+    name: country_visited
+    format: jsonschema
+    version: 1-0-0
+  description: Fired when a user visits a country page
+  type: object
+  properties:
+    country_name:
+      type: string
+      description: The full display name of the country (e.g. "Brazil")
+      maxLength: 255
+    country_code:
+      type: string
+      description: The ISO 3166-1 alpha-2 country code (e.g. "BR")
+      maxLength: 2
+  required:
+    - country_name
+    - country_code
+  additionalProperties: false

@@ -80,7 +80,7 @@ importers:
     devDependencies:
       '@snowplow/snowtype':
         specifier: ^0.17.0
-        version: 0.17.0(@types/node@22.19.15)(commander@2.20.3)
+        version: 0.17.0(@types/node@22.19.15)(commander@11.1.0)
       '@tailwindcss/typography':
         specifier: ^0.5.16
         version: 0.5.19(tailwindcss@4.2.2)
@@ -108,6 +108,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^5.1.4
         version: 5.2.0(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.2))
+      commander:
+        specifier: ^11.1.0
+        version: 11.1.0
       jsdom:
         specifier: ^28.1.0
         version: 28.1.0
@@ -1795,6 +1798,10 @@ packages:
   combined-stream@1.0.8:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
+
+  commander@11.1.0:
+    resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
+    engines: {node: '>=16'}
 
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
@@ -3522,9 +3529,9 @@ snapshots:
     dependencies:
       css-tree: 3.2.1
 
-  '@commander-js/extra-typings@11.1.0(commander@2.20.3)':
+  '@commander-js/extra-typings@11.1.0(commander@11.1.0)':
     dependencies:
-      commander: 2.20.3
+      commander: 11.1.0
 
   '@csstools/color-helpers@6.0.2': {}
 
@@ -4088,9 +4095,9 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@snowplow/snowtype@0.17.0(@types/node@22.19.15)(commander@2.20.3)':
+  '@snowplow/snowtype@0.17.0(@types/node@22.19.15)(commander@11.1.0)':
     dependencies:
-      '@commander-js/extra-typings': 11.1.0(commander@2.20.3)
+      '@commander-js/extra-typings': 11.1.0(commander@11.1.0)
       '@inquirer/prompts': 8.3.2(@types/node@22.19.15)
       '@snowplow/snowtype-core': 0.17.0
       chalk: 4.1.2
@@ -5055,6 +5062,8 @@ snapshots:
   combined-stream@1.0.8:
     dependencies:
       delayed-stream: 1.0.0
+
+  commander@11.1.0: {}
 
   commander@2.20.3: {}
 

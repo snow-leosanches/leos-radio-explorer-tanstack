@@ -13,6 +13,8 @@ import { LibraryProvider } from '../context/LibraryContext'
 import { PlayerProvider } from '../context/PlayerContext'
 import { SnowplowSignalsProvider } from '../contexts/SnowplowSignalsContext'
 import { applyUTMToURL, getStoredUTMParams, storeUTMParams, extractUTMFromURL } from '../lib/utm'
+import { PodcastProvider } from '../context/PodcastContext'
+import { PlaylistProvider } from '../context/PlaylistContext'
 
 import appCss from '../styles.css?url'
 
@@ -85,40 +87,44 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
         <QueryClientProvider client={queryClient}>
           <SnowplowSignalsProvider>
-            <LibraryProvider>
-              <PlayerProvider>
-                <SnowplowProvider />
-                <Header />
-                <ErrorBoundary>
-                  <div style={{ paddingBottom: 'var(--player-height)' }}>{children}</div>
-                </ErrorBoundary>
-                <Footer />
-                <AudioPlayer />
-                <Toaster
-                  position="bottom-center"
-                  offset={80}
-                  toastOptions={{
-                    style: {
-                      background: 'var(--surface-strong)',
-                      color: 'var(--sea-ink)',
-                      border: '1px solid var(--line)',
-                    },
-                  }}
-                />
-                <TanStackDevtools
-                  config={{
-                    position: 'bottom-right',
-                  }}
-                  plugins={[
-                    {
-                      name: 'Tanstack Router',
-                      render: <TanStackRouterDevtoolsPanel />,
-                    },
-                  ]}
-                />
-                <Scripts />
-              </PlayerProvider>
-            </LibraryProvider>
+            <PodcastProvider>
+              <PlaylistProvider>
+                <LibraryProvider>
+                  <PlayerProvider>
+                    <SnowplowProvider />
+                    <Header />
+                    <ErrorBoundary>
+                      <div style={{ paddingBottom: 'var(--player-height)' }}>{children}</div>
+                    </ErrorBoundary>
+                    <Footer />
+                    <AudioPlayer />
+                    <Toaster
+                      position="bottom-center"
+                      offset={80}
+                      toastOptions={{
+                        style: {
+                          background: 'var(--surface-strong)',
+                          color: 'var(--sea-ink)',
+                          border: '1px solid var(--line)',
+                        },
+                      }}
+                    />
+                    <TanStackDevtools
+                      config={{
+                        position: 'bottom-right',
+                      }}
+                      plugins={[
+                        {
+                          name: 'Tanstack Router',
+                          render: <TanStackRouterDevtoolsPanel />,
+                        },
+                      ]}
+                    />
+                    <Scripts />
+                  </PlayerProvider>
+                </LibraryProvider>
+              </PlaylistProvider>
+            </PodcastProvider>
           </SnowplowSignalsProvider>
         </QueryClientProvider>
       </body>

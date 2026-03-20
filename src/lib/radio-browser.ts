@@ -1,6 +1,8 @@
 // Radio Browser API client
 // Docs: https://api.radio-browser.info
 
+import { getMockStationsByCountry } from './mock-stations'
+
 // all.api.radio-browser.info is a DNS round-robin that resolves to the nearest
 // community-operated server, improving reliability over a single hardcoded host.
 const BASE_URL = 'https://all.api.radio-browser.info/json'
@@ -34,6 +36,7 @@ export interface Station {
   tags: string
   country: string
   countrycode: string
+  state: string
   language: string
   languagecodes: string
   votes: number
@@ -113,12 +116,25 @@ export async function getStationsByCountry(
   limit = PAGE_SIZE,
   offset = 0,
 ): Promise<Station[]> {
-  return apiFetch<Station[]>(`/stations/bycountryexact/${encodeURIComponent(countrycode)}`, {
-    limit: String(limit),
-    offset: String(offset),
-    order: 'votes',
-    reverse: 'true',
-  })
+  try {
+    // Use the search endpoint with countrycode (ISO 3166-1 alpha-2) so that
+    // passing "BR" finds Brazilian stations — bycountryexact expects the full
+    // country name and would return nothing for a two-letter code.
+    const results = await apiFetch<Station[]>('/stations/search', {
+      countrycode: countrycode.toUpperCase(),
+      limit: String(limit),
+      offset: String(offset),
+      order: 'votes',
+      reverse: 'true',
+    })
+    if (results.length > 0) return results
+  } catch {
+    // fall through to mock data
+  }
+
+  // Fall back to curated mock stations when the API returns nothing.
+  const mock = getMockStationsByCountry(countrycode)
+  return mock.slice(offset, offset + limit)
 }
 
 export async function getTopTags(limit = 60): Promise<Tag[]> {

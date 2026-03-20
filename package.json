@@ -13,7 +13,7 @@
     "lint": "eslint",
     "format": "prettier --check .",
     "check": "prettier --write . && eslint --fix",
-    "snowtype:generate": "snowtype generate"
+    "snowtype:generate": "snowtype generate -k 71e73713-720b-44a0-8848-c3a53f77cfc3 -s c256be49-4303-413e-9278-7a8ab8b8eeae"
   },
   "dependencies": {
     "@snowplow/browser-plugin-button-click-tracking": "^4.6.9",
@@ -51,6 +51,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.1.4",
+    "commander": "^11.1.0",
     "jsdom": "^28.1.0",
     "prettier": "^3.8.1",
     "typescript": "^5.7.2",

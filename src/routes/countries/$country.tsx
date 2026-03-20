@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronRight } from 'lucide-react'
 import StationGrid from '../../components/ui/StationGrid'
 import { flagEmoji } from '../../lib/genre-meta'
 import { getCountries, getStationsByCountry } from '../../lib/radio-browser'
 import { queryKeys } from '../../lib/query-keys'
+import { trackCountryVisitedSpec } from '../../../snowtype/snowplow'
 
 export const Route = createFileRoute('/countries/$country')({
   head: ({ params }) => ({
@@ -28,6 +30,14 @@ function CountryStations() {
   )
 
   const countryName = countryMeta?.name ?? countryCode
+
+  useEffect(() => {
+    try {
+      trackCountryVisitedSpec({ country_name: countryName, country_code: countryCode })
+    } catch (e) {
+      console.error('[Snowplow] Error tracking country_visited:', e)
+    }
+  }, [countryCode, countryName])
 
   return (
     <main className="pb-12">

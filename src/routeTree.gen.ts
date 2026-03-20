@@ -13,11 +13,17 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PodcastsIndexRouteImport } from './routes/podcasts/index'
+import { Route as PlaylistsIndexRouteImport } from './routes/playlists/index'
 import { Route as GenresIndexRouteImport } from './routes/genres/index'
 import { Route as CountriesIndexRouteImport } from './routes/countries/index'
 import { Route as StationsStationIdRouteImport } from './routes/stations/$stationId'
+import { Route as PodcastsPodcastIdRouteImport } from './routes/podcasts/$podcastId'
+import { Route as PlaylistsPlaylistIdRouteImport } from './routes/playlists/$playlistId'
 import { Route as GenresGenreRouteImport } from './routes/genres/$genre'
 import { Route as CountriesCountryRouteImport } from './routes/countries/$country'
+import { Route as ApiServiceAttributesRouteImport } from './routes/api/service-attributes'
+import { Route as PodcastsPodcastIdEpisodesEpisodeIdRouteImport } from './routes/podcasts/$podcastId.episodes.$episodeId'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
@@ -39,6 +45,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PodcastsIndexRoute = PodcastsIndexRouteImport.update({
+  id: '/podcasts/',
+  path: '/podcasts/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaylistsIndexRoute = PlaylistsIndexRouteImport.update({
+  id: '/playlists/',
+  path: '/playlists/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GenresIndexRoute = GenresIndexRouteImport.update({
   id: '/genres/',
   path: '/genres/',
@@ -54,6 +70,16 @@ const StationsStationIdRoute = StationsStationIdRouteImport.update({
   path: '/stations/$stationId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PodcastsPodcastIdRoute = PodcastsPodcastIdRouteImport.update({
+  id: '/podcasts/$podcastId',
+  path: '/podcasts/$podcastId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaylistsPlaylistIdRoute = PlaylistsPlaylistIdRouteImport.update({
+  id: '/playlists/$playlistId',
+  path: '/playlists/$playlistId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GenresGenreRoute = GenresGenreRouteImport.update({
   id: '/genres/$genre',
   path: '/genres/$genre',
@@ -64,28 +90,51 @@ const CountriesCountryRoute = CountriesCountryRouteImport.update({
   path: '/countries/$country',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiServiceAttributesRoute = ApiServiceAttributesRouteImport.update({
+  id: '/api/service-attributes',
+  path: '/api/service-attributes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PodcastsPodcastIdEpisodesEpisodeIdRoute =
+  PodcastsPodcastIdEpisodesEpisodeIdRouteImport.update({
+    id: '/episodes/$episodeId',
+    path: '/episodes/$episodeId',
+    getParentRoute: () => PodcastsPodcastIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/library': typeof LibraryRoute
   '/search': typeof SearchRoute
+  '/api/service-attributes': typeof ApiServiceAttributesRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/genres/$genre': typeof GenresGenreRoute
+  '/playlists/$playlistId': typeof PlaylistsPlaylistIdRoute
+  '/podcasts/$podcastId': typeof PodcastsPodcastIdRouteWithChildren
   '/stations/$stationId': typeof StationsStationIdRoute
   '/countries/': typeof CountriesIndexRoute
   '/genres/': typeof GenresIndexRoute
+  '/playlists/': typeof PlaylistsIndexRoute
+  '/podcasts/': typeof PodcastsIndexRoute
+  '/podcasts/$podcastId/episodes/$episodeId': typeof PodcastsPodcastIdEpisodesEpisodeIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/library': typeof LibraryRoute
   '/search': typeof SearchRoute
+  '/api/service-attributes': typeof ApiServiceAttributesRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/genres/$genre': typeof GenresGenreRoute
+  '/playlists/$playlistId': typeof PlaylistsPlaylistIdRoute
+  '/podcasts/$podcastId': typeof PodcastsPodcastIdRouteWithChildren
   '/stations/$stationId': typeof StationsStationIdRoute
   '/countries': typeof CountriesIndexRoute
   '/genres': typeof GenresIndexRoute
+  '/playlists': typeof PlaylistsIndexRoute
+  '/podcasts': typeof PodcastsIndexRoute
+  '/podcasts/$podcastId/episodes/$episodeId': typeof PodcastsPodcastIdEpisodesEpisodeIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -93,11 +142,17 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/library': typeof LibraryRoute
   '/search': typeof SearchRoute
+  '/api/service-attributes': typeof ApiServiceAttributesRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/genres/$genre': typeof GenresGenreRoute
+  '/playlists/$playlistId': typeof PlaylistsPlaylistIdRoute
+  '/podcasts/$podcastId': typeof PodcastsPodcastIdRouteWithChildren
   '/stations/$stationId': typeof StationsStationIdRoute
   '/countries/': typeof CountriesIndexRoute
   '/genres/': typeof GenresIndexRoute
+  '/playlists/': typeof PlaylistsIndexRoute
+  '/podcasts/': typeof PodcastsIndexRoute
+  '/podcasts/$podcastId/episodes/$episodeId': typeof PodcastsPodcastIdEpisodesEpisodeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -106,33 +161,51 @@ export interface FileRouteTypes {
     | '/about'
     | '/library'
     | '/search'
+    | '/api/service-attributes'
     | '/countries/$country'
     | '/genres/$genre'
+    | '/playlists/$playlistId'
+    | '/podcasts/$podcastId'
     | '/stations/$stationId'
     | '/countries/'
     | '/genres/'
+    | '/playlists/'
+    | '/podcasts/'
+    | '/podcasts/$podcastId/episodes/$episodeId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/library'
     | '/search'
+    | '/api/service-attributes'
     | '/countries/$country'
     | '/genres/$genre'
+    | '/playlists/$playlistId'
+    | '/podcasts/$podcastId'
     | '/stations/$stationId'
     | '/countries'
     | '/genres'
+    | '/playlists'
+    | '/podcasts'
+    | '/podcasts/$podcastId/episodes/$episodeId'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/library'
     | '/search'
+    | '/api/service-attributes'
     | '/countries/$country'
     | '/genres/$genre'
+    | '/playlists/$playlistId'
+    | '/podcasts/$podcastId'
     | '/stations/$stationId'
     | '/countries/'
     | '/genres/'
+    | '/playlists/'
+    | '/podcasts/'
+    | '/podcasts/$podcastId/episodes/$episodeId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -140,11 +213,16 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   LibraryRoute: typeof LibraryRoute
   SearchRoute: typeof SearchRoute
+  ApiServiceAttributesRoute: typeof ApiServiceAttributesRoute
   CountriesCountryRoute: typeof CountriesCountryRoute
   GenresGenreRoute: typeof GenresGenreRoute
+  PlaylistsPlaylistIdRoute: typeof PlaylistsPlaylistIdRoute
+  PodcastsPodcastIdRoute: typeof PodcastsPodcastIdRouteWithChildren
   StationsStationIdRoute: typeof StationsStationIdRoute
   CountriesIndexRoute: typeof CountriesIndexRoute
   GenresIndexRoute: typeof GenresIndexRoute
+  PlaylistsIndexRoute: typeof PlaylistsIndexRoute
+  PodcastsIndexRoute: typeof PodcastsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -177,6 +255,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/podcasts/': {
+      id: '/podcasts/'
+      path: '/podcasts'
+      fullPath: '/podcasts/'
+      preLoaderRoute: typeof PodcastsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playlists/': {
+      id: '/playlists/'
+      path: '/playlists'
+      fullPath: '/playlists/'
+      preLoaderRoute: typeof PlaylistsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/genres/': {
       id: '/genres/'
       path: '/genres'
@@ -198,6 +290,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StationsStationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/podcasts/$podcastId': {
+      id: '/podcasts/$podcastId'
+      path: '/podcasts/$podcastId'
+      fullPath: '/podcasts/$podcastId'
+      preLoaderRoute: typeof PodcastsPodcastIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playlists/$playlistId': {
+      id: '/playlists/$playlistId'
+      path: '/playlists/$playlistId'
+      fullPath: '/playlists/$playlistId'
+      preLoaderRoute: typeof PlaylistsPlaylistIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/genres/$genre': {
       id: '/genres/$genre'
       path: '/genres/$genre'
@@ -212,19 +318,50 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CountriesCountryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/service-attributes': {
+      id: '/api/service-attributes'
+      path: '/api/service-attributes'
+      fullPath: '/api/service-attributes'
+      preLoaderRoute: typeof ApiServiceAttributesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/podcasts/$podcastId/episodes/$episodeId': {
+      id: '/podcasts/$podcastId/episodes/$episodeId'
+      path: '/episodes/$episodeId'
+      fullPath: '/podcasts/$podcastId/episodes/$episodeId'
+      preLoaderRoute: typeof PodcastsPodcastIdEpisodesEpisodeIdRouteImport
+      parentRoute: typeof PodcastsPodcastIdRoute
+    }
   }
 }
+
+interface PodcastsPodcastIdRouteChildren {
+  PodcastsPodcastIdEpisodesEpisodeIdRoute: typeof PodcastsPodcastIdEpisodesEpisodeIdRoute
+}
+
+const PodcastsPodcastIdRouteChildren: PodcastsPodcastIdRouteChildren = {
+  PodcastsPodcastIdEpisodesEpisodeIdRoute:
+    PodcastsPodcastIdEpisodesEpisodeIdRoute,
+}
+
+const PodcastsPodcastIdRouteWithChildren =
+  PodcastsPodcastIdRoute._addFileChildren(PodcastsPodcastIdRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   LibraryRoute: LibraryRoute,
   SearchRoute: SearchRoute,
+  ApiServiceAttributesRoute: ApiServiceAttributesRoute,
   CountriesCountryRoute: CountriesCountryRoute,
   GenresGenreRoute: GenresGenreRoute,
+  PlaylistsPlaylistIdRoute: PlaylistsPlaylistIdRoute,
+  PodcastsPodcastIdRoute: PodcastsPodcastIdRouteWithChildren,
   StationsStationIdRoute: StationsStationIdRoute,
   CountriesIndexRoute: CountriesIndexRoute,
   GenresIndexRoute: GenresIndexRoute,
+  PlaylistsIndexRoute: PlaylistsIndexRoute,
+  PodcastsIndexRoute: PodcastsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

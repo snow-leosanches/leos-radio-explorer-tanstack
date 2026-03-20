@@ -7,36 +7,57 @@ data:
     eventSpecifications:
         - resourceName: ef7a289d-d3bf-49cf-b89b-19e37327850d
           name: genre_visited
+          event:
+              source: iglu:com.leosradioexplorer/genre_visited/jsonschema/1-0-0
           entities:
               tracked: []
               enriched: []
         - resourceName: 8e6445c2-b352-4d97-bc8c-a96aca2eee28
           name: radio_visited
+          event:
+              source: iglu:com.leosradioexplorer/radio_visited/jsonschema/1-0-0
           entities:
               tracked: []
               enriched: []
         - resourceName: 57623aa9-2bf4-4f04-ab42-d8f25490bae0
           name: podcast_visited
+          event:
+              source: iglu:com.leosradioexplorer/podcast_visited/jsonschema/1-0-0
           entities:
               tracked: []
               enriched: []
         - resourceName: f7ee111c-7f78-4727-b6a3-272ee3a28426
           name: podcast_subscribed
+          event:
+              source: iglu:com.leosradioexplorer/podcast_subscribed/jsonschema/1-0-0
           entities:
               tracked: []
               enriched: []
         - resourceName: 3e701b88-05a8-4fa4-bef7-9ca528a4564f
           name: podcast_unsubscribed
+          event:
+              source: iglu:com.leosradioexplorer/podcast_unsubscribed/jsonschema/1-0-0
           entities:
               tracked: []
               enriched: []
         - resourceName: 1e201ab2-1fa8-46a5-bdb7-37a1653e7c95
           name: podcast_episode_started
+          event:
+              source: iglu:com.leosradioexplorer/podcast_episode_started/jsonschema/1-0-0
           entities:
               tracked: []
               enriched: []
         - resourceName: 500f9c2a-d5de-469c-af6f-626b8c9af62d
           name: playlist_started
+          event:
+              source: iglu:com.leosradioexplorer/playlist_started/jsonschema/1-0-0
+          entities:
+              tracked: []
+              enriched: []
+        - resourceName: c7a92e1f-3b4d-4e8a-b6f0-d9e2c5a17083
+          name: country_visited
+          event:
+              source: iglu:com.leosradioexplorer/country_visited/jsonschema/1-0-0
           entities:
               tracked: []
               enriched: []
