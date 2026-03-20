@@ -85,6 +85,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const hlsRef = useRef<any>(null)
+  const stationRef = useRef<Station | null>(null)
+
+  // Keep stationRef in sync so audio event handlers always see the current station
+  useEffect(() => {
+    stationRef.current = state.station
+  }, [state.station])
 
   // Create the audio element once
   useEffect(() => {
@@ -97,7 +103,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     const onPause = () => dispatch({ type: 'PAUSED' })
     const onError = () =>
       dispatch({ type: 'ERROR', message: 'Stream unavailable. Try another station.' })
-    const onWaiting = () => dispatch({ type: 'LOAD', station: state.station! })
+    const onWaiting = () => {
+      if (stationRef.current) dispatch({ type: 'LOAD', station: stationRef.current })
+    }
 
     audio.addEventListener('playing', onPlaying)
     audio.addEventListener('pause', onPause)

@@ -287,7 +287,7 @@ a {
 /* ─── Player bar ──────────────────────────────────────────────────────────── */
 
 :root {
-  --player-height: 72px;
+  --player-height: 80px;
 }
 
 .player-bar {
@@ -297,12 +297,12 @@ a {
   right: 0;
   height: var(--player-height);
   z-index: 100;
-  background: rgba(10, 18, 22, 0.96);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
+  background: rgba(10, 18, 22, 0.97);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
   display: flex;
   align-items: center;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
 }
 
 /* Volume slider reset */
