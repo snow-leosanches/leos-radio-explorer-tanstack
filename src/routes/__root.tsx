@@ -1,7 +1,8 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute, useLocation } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { Toaster } from 'sonner'
 import ErrorBoundary from '../components/ErrorBoundary'
 import Footer from '../components/Footer'
@@ -10,6 +11,8 @@ import AudioPlayer from '../components/player/AudioPlayer'
 import { SnowplowProvider } from '../components/SnowplowProvider'
 import { LibraryProvider } from '../context/LibraryContext'
 import { PlayerProvider } from '../context/PlayerContext'
+import { SnowplowSignalsProvider } from '../contexts/SnowplowSignalsContext'
+import { applyUTMToURL, getStoredUTMParams, storeUTMParams, extractUTMFromURL } from '../lib/utm'
 
 import appCss from '../styles.css?url'
 
@@ -53,6 +56,25 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const location = useLocation()
+
+  // Capture UTM params on first load and reapply them on every navigation
+  useEffect(() => {
+    const extracted = extractUTMFromURL()
+    if (Object.keys(extracted).length > 0) {
+      storeUTMParams(extracted)
+    }
+  }, [])
+
+  useEffect(() => {
+    const stored = getStoredUTMParams()
+    if (!stored || Object.keys(stored).length === 0) return
+    const urlWithUTM = applyUTMToURL(window.location.href, stored)
+    if (urlWithUTM !== window.location.href) {
+      window.history.replaceState({}, '', urlWithUTM)
+    }
+  }, [location.pathname, location.search])
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -62,40 +84,42 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
         <QueryClientProvider client={queryClient}>
-          <LibraryProvider>
-            <PlayerProvider>
-              <SnowplowProvider />
-              <Header />
-              <ErrorBoundary>
-                <div style={{ paddingBottom: 'var(--player-height)' }}>{children}</div>
-              </ErrorBoundary>
-              <Footer />
-              <AudioPlayer />
-              <Toaster
-                position="bottom-center"
-                offset={80}
-                toastOptions={{
-                  style: {
-                    background: 'var(--surface-strong)',
-                    color: 'var(--sea-ink)',
-                    border: '1px solid var(--line)',
-                  },
-                }}
-              />
-              <TanStackDevtools
-                config={{
-                  position: 'bottom-right',
-                }}
-                plugins={[
-                  {
-                    name: 'Tanstack Router',
-                    render: <TanStackRouterDevtoolsPanel />,
-                  },
-                ]}
-              />
-              <Scripts />
-            </PlayerProvider>
-          </LibraryProvider>
+          <SnowplowSignalsProvider>
+            <LibraryProvider>
+              <PlayerProvider>
+                <SnowplowProvider />
+                <Header />
+                <ErrorBoundary>
+                  <div style={{ paddingBottom: 'var(--player-height)' }}>{children}</div>
+                </ErrorBoundary>
+                <Footer />
+                <AudioPlayer />
+                <Toaster
+                  position="bottom-center"
+                  offset={80}
+                  toastOptions={{
+                    style: {
+                      background: 'var(--surface-strong)',
+                      color: 'var(--sea-ink)',
+                      border: '1px solid var(--line)',
+                    },
+                  }}
+                />
+                <TanStackDevtools
+                  config={{
+                    position: 'bottom-right',
+                  }}
+                  plugins={[
+                    {
+                      name: 'Tanstack Router',
+                      render: <TanStackRouterDevtoolsPanel />,
+                    },
+                  ]}
+                />
+                <Scripts />
+              </PlayerProvider>
+            </LibraryProvider>
+          </SnowplowSignalsProvider>
         </QueryClientProvider>
       </body>
     </html>

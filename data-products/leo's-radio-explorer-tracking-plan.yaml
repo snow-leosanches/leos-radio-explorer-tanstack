@@ -1,0 +1,7 @@
+apiVersion: v1
+resourceType: data-product
+resourceName: 52f425f5-1bce-4349-929e-5c53dede1f07
+data:
+    name: Leo's Radio Explorer Tracking Plan
+    sourceApplications: []
+    eventSpecifications: []
