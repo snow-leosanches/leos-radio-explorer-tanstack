@@ -1,0 +1,23 @@
+apiVersion: v1
+resourceType: data-structure
+meta:
+  hidden: false
+  schemaType: event
+  customData: {}
+data:
+  $schema: http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#
+  self:
+    vendor: com.leosradioexplorer
+    name: genre_visited
+    format: jsonschema
+    version: 1-0-0
+  description: Fired when a user visits a genre page
+  type: object
+  properties:
+    genre_name:
+      type: string
+      description: The name of the genre the user visited
+      maxLength: 255
+  required:
+    - genre_name
+  additionalProperties: false
