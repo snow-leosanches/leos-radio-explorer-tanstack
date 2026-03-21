@@ -84,6 +84,13 @@ export default function Header() {
             Countries
           </Link>
           <Link
+            to="/podcasts"
+            className="nav-link"
+            activeProps={{ className: 'nav-link is-active' }}
+          >
+            Podcasts
+          </Link>
+          <Link
             to="/about"
             className="nav-link"
             activeProps={{ className: 'nav-link is-active' }}

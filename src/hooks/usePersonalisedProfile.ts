@@ -1,0 +1,55 @@
+import { useQuery } from '@tanstack/react-query'
+import { snowplowTracker } from '../lib/snowplow'
+
+interface AttributeGroupData {
+  countries_count?: Record<string, number>
+  genres_count?: Record<string, number>
+  last_country_visited?: string
+  last_genre_visited?: string
+}
+
+export interface PersonalisedProfile {
+  topCountryCode: string | null
+  topGenre: string | null
+  lastCountryCode: string | null
+  lastGenre: string | null
+}
+
+function topKey(dict: Record<string, number> | undefined): string | null {
+  if (!dict) return null
+  const entries = Object.entries(dict)
+  if (entries.length === 0) return null
+  return entries.reduce((best, curr) => (curr[1] > best[1] ? curr : best))[0]
+}
+
+export function usePersonalisedProfile(): { profile: PersonalisedProfile; isLoading: boolean } {
+  const domainUserId = snowplowTracker?.getDomainUserId() ?? null
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['signals', 'attribute-groups', 'leos_radio_explorer_domain_userid', domainUserId],
+    queryFn: async (): Promise<AttributeGroupData> => {
+      const params = new URLSearchParams({
+        attribute_key: 'domain_userid',
+        identifier: domainUserId!,
+        name: 'leos_radio_explorer_domain_userid',
+        version: '1',
+        attributes: 'countries_count,genres_count,last_country_visited,last_genre_visited',
+      })
+      const res = await fetch(`/api/attribute-groups?${params.toString()}`)
+      if (!res.ok) return {}
+      return res.json()
+    },
+    enabled: !!domainUserId,
+    staleTime: 1000 * 60 * 5,
+  })
+
+  return {
+    profile: {
+      topCountryCode: topKey(data?.countries_count) ?? null,
+      topGenre: topKey(data?.genres_count) ?? null,
+      lastCountryCode: data?.last_country_visited ?? null,
+      lastGenre: data?.last_genre_visited ?? null,
+    },
+    isLoading,
+  }
+}

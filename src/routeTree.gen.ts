@@ -23,6 +23,7 @@ import { Route as PlaylistsPlaylistIdRouteImport } from './routes/playlists/$pla
 import { Route as GenresGenreRouteImport } from './routes/genres/$genre'
 import { Route as CountriesCountryRouteImport } from './routes/countries/$country'
 import { Route as ApiServiceAttributesRouteImport } from './routes/api/service-attributes'
+import { Route as ApiAttributeGroupsRouteImport } from './routes/api/attribute-groups'
 import { Route as PodcastsPodcastIdEpisodesEpisodeIdRouteImport } from './routes/podcasts/$podcastId.episodes.$episodeId'
 
 const SearchRoute = SearchRouteImport.update({
@@ -95,6 +96,11 @@ const ApiServiceAttributesRoute = ApiServiceAttributesRouteImport.update({
   path: '/api/service-attributes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAttributeGroupsRoute = ApiAttributeGroupsRouteImport.update({
+  id: '/api/attribute-groups',
+  path: '/api/attribute-groups',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PodcastsPodcastIdEpisodesEpisodeIdRoute =
   PodcastsPodcastIdEpisodesEpisodeIdRouteImport.update({
     id: '/episodes/$episodeId',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/library': typeof LibraryRoute
   '/search': typeof SearchRoute
+  '/api/attribute-groups': typeof ApiAttributeGroupsRoute
   '/api/service-attributes': typeof ApiServiceAttributesRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/genres/$genre': typeof GenresGenreRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/library': typeof LibraryRoute
   '/search': typeof SearchRoute
+  '/api/attribute-groups': typeof ApiAttributeGroupsRoute
   '/api/service-attributes': typeof ApiServiceAttributesRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/genres/$genre': typeof GenresGenreRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/library': typeof LibraryRoute
   '/search': typeof SearchRoute
+  '/api/attribute-groups': typeof ApiAttributeGroupsRoute
   '/api/service-attributes': typeof ApiServiceAttributesRoute
   '/countries/$country': typeof CountriesCountryRoute
   '/genres/$genre': typeof GenresGenreRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/library'
     | '/search'
+    | '/api/attribute-groups'
     | '/api/service-attributes'
     | '/countries/$country'
     | '/genres/$genre'
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/library'
     | '/search'
+    | '/api/attribute-groups'
     | '/api/service-attributes'
     | '/countries/$country'
     | '/genres/$genre'
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/library'
     | '/search'
+    | '/api/attribute-groups'
     | '/api/service-attributes'
     | '/countries/$country'
     | '/genres/$genre'
@@ -213,6 +225,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   LibraryRoute: typeof LibraryRoute
   SearchRoute: typeof SearchRoute
+  ApiAttributeGroupsRoute: typeof ApiAttributeGroupsRoute
   ApiServiceAttributesRoute: typeof ApiServiceAttributesRoute
   CountriesCountryRoute: typeof CountriesCountryRoute
   GenresGenreRoute: typeof GenresGenreRoute
@@ -325,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiServiceAttributesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/attribute-groups': {
+      id: '/api/attribute-groups'
+      path: '/api/attribute-groups'
+      fullPath: '/api/attribute-groups'
+      preLoaderRoute: typeof ApiAttributeGroupsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/podcasts/$podcastId/episodes/$episodeId': {
       id: '/podcasts/$podcastId/episodes/$episodeId'
       path: '/episodes/$episodeId'
@@ -352,6 +372,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   LibraryRoute: LibraryRoute,
   SearchRoute: SearchRoute,
+  ApiAttributeGroupsRoute: ApiAttributeGroupsRoute,
   ApiServiceAttributesRoute: ApiServiceAttributesRoute,
   CountriesCountryRoute: CountriesCountryRoute,
   GenresGenreRoute: GenresGenreRoute,

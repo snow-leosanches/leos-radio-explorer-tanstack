@@ -6,9 +6,12 @@ import GenreGrid from '../components/home/GenreGrid'
 import StationCard from '../components/ui/StationCard'
 import SectionHeader from '../components/ui/SectionHeader'
 import { SkeletonGrid } from '../components/ui/SkeletonCard'
-import { getTopStations, getCountries } from '../lib/radio-browser'
+import { getTopStations, getCountries, getStationsByCountry, getStationsByTag, type Station } from '../lib/radio-browser'
+import { searchPodcasts } from '../lib/itunes'
 import { queryKeys } from '../lib/query-keys'
 import { useRecentlyPlayed } from '../hooks/useRecentlyPlayed'
+import { usePersonalisedProfile } from '../hooks/usePersonalisedProfile'
+import { flagEmoji } from '../lib/genre-meta'
 
 export const Route = createFileRoute('/')({
   head: () => ({ meta: [{ title: "Discover · Leo's Radio Explorer" }] }),
@@ -22,10 +25,166 @@ function Home() {
 
       <div className="flex flex-col gap-14 pb-16">
         <RecentlyPlayedSection />
+        <PersonalisedCarousels />
         <FeaturedRail />
+        <PodcastsCarousel />
         <GenreGrid />
         <TrendingSection />
         <CountryStrip />
+      </div>
+    </div>
+  )
+}
+
+// ─── Personalised Carousels ───────────────────────────────────────────────────
+
+function PersonalisedCarousels() {
+  const { profile } = usePersonalisedProfile()
+  const { topCountryCode, topGenre, lastCountryCode, lastGenre } = profile
+
+  return (
+    <>
+      {topCountryCode && <MoreFromCountrySection countryCode={topCountryCode} />}
+      {topGenre && <MoreFromGenreSection genre={topGenre} />}
+      {lastCountryCode && <ContinueExploringCountrySection countryCode={lastCountryCode} />}
+      {lastGenre && <ContinueExploringGenreSection genre={lastGenre} />}
+    </>
+  )
+}
+
+function MoreFromCountrySection({ countryCode }: { countryCode: string }) {
+  const { data: countries } = useQuery({
+    queryKey: queryKeys.countries.all(),
+    queryFn: () => getCountries(),
+  })
+  const countryName =
+    countries?.find((c) => c.iso_3166_1.toUpperCase() === countryCode.toUpperCase())?.name ??
+    countryCode
+  const flag = flagEmoji(countryCode)
+
+  const { data: stations, isLoading } = useQuery({
+    queryKey: [...queryKeys.stations.byCountry(countryCode), 'personalised-more'],
+    queryFn: () => getStationsByCountry(countryCode, 10),
+  })
+
+  if (!isLoading && (!stations || stations.length === 0)) return null
+
+  return (
+    <section className="page-wrap px-4">
+      <SectionHeader
+        title={`More from ${flag} ${countryName}`}
+        subtitle="Stations you might love"
+        href={`/countries/${countryCode}`}
+        hrefLabel="See all"
+      />
+      <StationCarouselRow stations={stations} isLoading={isLoading} />
+    </section>
+  )
+}
+
+function MoreFromGenreSection({ genre }: { genre: string }) {
+  const label = genre.charAt(0).toUpperCase() + genre.slice(1)
+
+  const { data: stations, isLoading } = useQuery({
+    queryKey: [...queryKeys.stations.byTag(genre), 'personalised-more'],
+    queryFn: () => getStationsByTag(genre, 10),
+  })
+
+  if (!isLoading && (!stations || stations.length === 0)) return null
+
+  return (
+    <section className="page-wrap px-4">
+      <SectionHeader
+        title={`More ${label}`}
+        subtitle="Based on your listening history"
+        href={`/genres/${genre}`}
+        hrefLabel="See all"
+      />
+      <StationCarouselRow stations={stations} isLoading={isLoading} />
+    </section>
+  )
+}
+
+function ContinueExploringCountrySection({ countryCode }: { countryCode: string }) {
+  const { data: countries } = useQuery({
+    queryKey: queryKeys.countries.all(),
+    queryFn: () => getCountries(),
+  })
+  const countryName =
+    countries?.find((c) => c.iso_3166_1.toUpperCase() === countryCode.toUpperCase())?.name ??
+    countryCode
+  const flag = flagEmoji(countryCode)
+
+  const { data: stations, isLoading } = useQuery({
+    queryKey: [...queryKeys.stations.byCountry(countryCode), 'personalised-continue'],
+    queryFn: () => getStationsByCountry(countryCode, 10),
+  })
+
+  if (!isLoading && (!stations || stations.length === 0)) return null
+
+  return (
+    <section className="page-wrap px-4">
+      <SectionHeader
+        title={`Continue exploring ${flag} ${countryName}`}
+        subtitle="Pick up where you left off"
+        href={`/countries/${countryCode}`}
+        hrefLabel="See all"
+      />
+      <StationCarouselRow stations={stations} isLoading={isLoading} />
+    </section>
+  )
+}
+
+function ContinueExploringGenreSection({ genre }: { genre: string }) {
+  const label = genre.charAt(0).toUpperCase() + genre.slice(1)
+
+  const { data: stations, isLoading } = useQuery({
+    queryKey: [...queryKeys.stations.byTag(genre), 'personalised-continue'],
+    queryFn: () => getStationsByTag(genre, 10),
+  })
+
+  if (!isLoading && (!stations || stations.length === 0)) return null
+
+  return (
+    <section className="page-wrap px-4">
+      <SectionHeader
+        title={`Continue exploring ${label}`}
+        subtitle="Pick up where you left off"
+        href={`/genres/${genre}`}
+        hrefLabel="See all"
+      />
+      <StationCarouselRow stations={stations} isLoading={isLoading} />
+    </section>
+  )
+}
+
+function StationCarouselRow({
+  stations,
+  isLoading,
+}: {
+  stations: Station[] | undefined
+  isLoading: boolean
+}) {
+  return (
+    <div className="-mx-4 mt-6 overflow-x-auto px-4">
+      <div className="flex gap-3 pb-4" style={{ width: 'max-content' }}>
+        {isLoading &&
+          Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="w-44 flex-shrink-0">
+              <div className="skeleton-pulse aspect-square w-full rounded-xl" />
+              <div className="skeleton-pulse mt-2 h-3 w-3/4 rounded" />
+              <div className="skeleton-pulse mt-1 h-3 w-1/2 rounded" />
+            </div>
+          ))}
+        {stations?.map((station, i) => (
+          <div
+            key={station.stationuuid}
+            className="w-44 rise-in flex-shrink-0"
+            style={{ animationDelay: `${i * 40}ms` }}
+          >
+            <StationCard station={station} />
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -56,6 +215,62 @@ function RecentlyPlayedSection() {
             >
               <StationCard station={station} />
             </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── Podcasts Carousel ────────────────────────────────────────────────────────
+
+function PodcastsCarousel() {
+  const { data: podcasts, isLoading } = useQuery({
+    queryKey: ['podcasts', 'featured-home'],
+    queryFn: () => searchPodcasts('best podcasts 2024', 12),
+    staleTime: 1000 * 60 * 10,
+  })
+
+  return (
+    <section className="page-wrap px-4">
+      <SectionHeader
+        title="Trending Podcasts"
+        subtitle="Popular shows right now"
+        href="/podcasts"
+        hrefLabel="See all"
+      />
+
+      <div className="-mx-4 mt-6 overflow-x-auto px-4">
+        <div className="flex gap-3 pb-4" style={{ width: 'max-content' }}>
+          {isLoading &&
+            Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="flex w-36 flex-shrink-0 flex-col gap-2">
+                <div className="skeleton-pulse aspect-square w-full rounded-xl" />
+                <div className="skeleton-pulse h-3 w-3/4 rounded" />
+                <div className="skeleton-pulse h-3 w-1/2 rounded" />
+              </div>
+            ))}
+
+          {podcasts?.map((podcast, i) => (
+            <Link
+              key={podcast.id}
+              to="/podcasts/$podcastId"
+              params={{ podcastId: podcast.id }}
+              className="rise-in group w-36 flex-shrink-0 no-underline"
+              style={{ animationDelay: `${i * 40}ms` }}
+            >
+              <img
+                src={podcast.artwork}
+                alt={podcast.name}
+                className="aspect-square w-full rounded-xl object-cover transition group-hover:opacity-90"
+              />
+              <p className="mt-2 line-clamp-2 text-xs font-semibold text-[var(--sea-ink)]">
+                {podcast.name}
+              </p>
+              <p className="mt-0.5 truncate text-[11px] text-[var(--sea-ink-soft)]">
+                {podcast.author}
+              </p>
+            </Link>
           ))}
         </div>
       </div>
