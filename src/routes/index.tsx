@@ -39,16 +39,35 @@ function Home() {
 // ─── Personalised Carousels ───────────────────────────────────────────────────
 
 function PersonalisedCarousels() {
-  const { profile } = usePersonalisedProfile()
+  const { profile, isLoading: profileLoading } = usePersonalisedProfile()
   const { topCountryCode, topGenre, lastCountryCode, lastGenre } = profile
 
   return (
     <>
-      {topCountryCode && <MoreFromCountrySection countryCode={topCountryCode} />}
-      {topGenre && <MoreFromGenreSection genre={topGenre} />}
+      {profileLoading ? (
+        <>
+          <CarouselSkeletonSection />
+          <CarouselSkeletonSection />
+        </>
+      ) : (
+        <>
+          {topCountryCode && <MoreFromCountrySection countryCode={topCountryCode} />}
+          {topGenre && <MoreFromGenreSection genre={topGenre} />}
+        </>
+      )}
       {lastCountryCode && <ContinueExploringCountrySection countryCode={lastCountryCode} />}
       {lastGenre && <ContinueExploringGenreSection genre={lastGenre} />}
     </>
+  )
+}
+
+function CarouselSkeletonSection() {
+  return (
+    <section className="page-wrap px-4">
+      <div className="skeleton-pulse mb-1 h-5 w-48 rounded" />
+      <div className="skeleton-pulse mt-1 h-3 w-32 rounded" />
+      <StationCarouselRow stations={undefined} isLoading={true} />
+    </section>
   )
 }
 
@@ -278,7 +297,7 @@ function PodcastsCarousel() {
   )
 }
 
-// ─── Trending Now ─────────────────────────────────────────────────────────────
+// ─── Trending Radio Stations ─────────────────────────────────────────────────────────────
 
 function TrendingSection() {
   const { data: stations, isLoading, isError } = useQuery({
@@ -289,7 +308,7 @@ function TrendingSection() {
   return (
     <section className="page-wrap px-4">
       <SectionHeader
-        title="Trending Now"
+        title="Trending Radio Stations"
         subtitle="Most-voted stations right now"
         href="/genres"
         hrefLabel="See more"
@@ -321,7 +340,7 @@ function TrendingSection() {
 // ─── Country Strip ────────────────────────────────────────────────────────────
 
 const FEATURED_COUNTRIES = [
-  { code: 'US', name: 'United States', flag: '🇺🇸' },
+  { code: 'US', name: 'United States',  flag: '🇺🇸' },
   { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
   { code: 'DE', name: 'Germany',        flag: '🇩🇪' },
   { code: 'BR', name: 'Brazil',         flag: '🇧🇷' },

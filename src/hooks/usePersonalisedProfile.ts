@@ -27,7 +27,7 @@ function topKey(dict: Record<string, number> | undefined): string | null {
 export function usePersonalisedProfile(): { profile: PersonalisedProfile; isLoading: boolean } {
   const domainUserId = snowplowTracker?.getDomainUserId() ?? null
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ['signals', 'attribute-groups', 'leos_radio_explorer_domain_userid', domainUserId],
     queryFn: async (): Promise<AttributeGroupData> => {
       const params = new URLSearchParams({
@@ -42,7 +42,7 @@ export function usePersonalisedProfile(): { profile: PersonalisedProfile; isLoad
       return res.json()
     },
     enabled: !!domainUserId,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
   })
 
   return {
@@ -52,6 +52,6 @@ export function usePersonalisedProfile(): { profile: PersonalisedProfile; isLoad
       lastCountryCode: data?.last_country_visited ?? null,
       lastGenre: data?.last_genre_visited ?? null,
     },
-    isLoading,
+    isLoading: isLoading || isFetching,
   }
 }
