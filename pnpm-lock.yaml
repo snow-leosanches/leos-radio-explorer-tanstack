@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@faker-js/faker':
+        specifier: ^10.3.0
+        version: 10.3.0
       '@snowplow/browser-plugin-button-click-tracking':
         specifier: ^4.6.9
         version: 4.6.9(@snowplow/browser-tracker@4.6.9)
@@ -505,6 +508,10 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@faker-js/faker@10.3.0':
+    resolution: {integrity: sha512-It0Sne6P3szg7JIi6CgKbvTZoMjxBZhcv91ZrqrNuaZQfB5WoqYYbzCUOq89YR+VY8juY9M1vDWmDDa2TzfXCw==}
+    engines: {node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: '>=10'}
 
   '@fastify/merge-json-schemas@0.2.1':
     resolution: {integrity: sha512-OA3KGBCy6KtIvLf8DINC5880o5iBlDX4SxzLQS8HorJAbqluzLRn80UXU0bxZn7UOFhFgpRJDasfwn9nG4FG4A==}
@@ -3686,6 +3693,8 @@ snapshots:
       levn: 0.4.1
 
   '@exodus/bytes@1.15.0': {}
+
+  '@faker-js/faker@10.3.0': {}
 
   '@fastify/merge-json-schemas@0.2.1':
     dependencies:

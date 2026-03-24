@@ -15,6 +15,8 @@ import { SnowplowSignalsProvider } from '../contexts/SnowplowSignalsContext'
 import { applyUTMToURL, getStoredUTMParams, storeUTMParams, extractUTMFromURL } from '../lib/utm'
 import { PodcastProvider } from '../context/PodcastContext'
 import { PlaylistProvider } from '../context/PlaylistContext'
+import { UserProvider } from '../context/UserContext'
+import { OnboardingProvider } from '../context/OnboardingContext'
 
 import appCss from '../styles.css?url'
 
@@ -87,6 +89,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
         <QueryClientProvider client={queryClient}>
           <SnowplowSignalsProvider>
+            <UserProvider>
+            <OnboardingProvider>
             <PodcastProvider>
               <PlaylistProvider>
                 <LibraryProvider>
@@ -125,6 +129,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 </LibraryProvider>
               </PlaylistProvider>
             </PodcastProvider>
+            </OnboardingProvider>
+            </UserProvider>
           </SnowplowSignalsProvider>
         </QueryClientProvider>
       </body>

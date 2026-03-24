@@ -1,13 +1,15 @@
 import { Link, useNavigate, useRouter } from '@tanstack/react-router'
-import { Radio, Search } from 'lucide-react'
+import { Radio, Search, User } from 'lucide-react'
 import { useEffect } from 'react'
 import { useLibrary } from '../context/LibraryContext'
+import { useUser } from '../context/UserContext'
 import ThemeToggle from './ThemeToggle'
 
 export default function Header() {
   const navigate = useNavigate()
   const router = useRouter()
   const { savedStations } = useLibrary()
+  const { user } = useUser()
 
   // Global Cmd+K / Ctrl+K → focus search
   useEffect(() => {
@@ -56,6 +58,19 @@ export default function Header() {
           >
             <Search size={18} />
           </Link>
+          <Link
+            to={user ? '/profile' : '/login'}
+            className="flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-[var(--sea-ink-soft)] transition hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]"
+            aria-label={user ? `Profile: ${user.name || user.email}` : 'Login'}
+            title={user ? (user.name || user.email) : 'Login'}
+          >
+            <User size={18} />
+            {user && (
+              <span className="hidden text-xs font-semibold sm:inline">
+                {user.name ? user.name.split(' ')[0] : user.email}
+              </span>
+            )}
+          </Link>
           <ThemeToggle />
         </div>
 
@@ -96,6 +111,13 @@ export default function Header() {
             activeProps={{ className: 'nav-link is-active' }}
           >
             About
+          </Link>
+          <Link
+            to={user ? '/profile' : '/login'}
+            className="nav-link"
+            activeProps={{ className: 'nav-link is-active' }}
+          >
+            {user ? (user.name ? user.name.split(' ')[0] : user.email) : 'Login'}
           </Link>
           <Link
             to="/library"

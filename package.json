@@ -16,6 +16,7 @@
     "snowtype:generate": "snowtype generate -k 71e73713-720b-44a0-8848-c3a53f77cfc3 -s c256be49-4303-413e-9278-7a8ab8b8eeae"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.3.0",
     "@snowplow/browser-plugin-button-click-tracking": "^4.6.9",
     "@snowplow/browser-plugin-link-click-tracking": "^4.6.9",
     "@snowplow/browser-plugin-performance-navigation-timing": "^4.6.9",
