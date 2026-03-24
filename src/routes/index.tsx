@@ -6,7 +6,7 @@ import GenreGrid from '../components/home/GenreGrid'
 import StationCard from '../components/ui/StationCard'
 import SectionHeader from '../components/ui/SectionHeader'
 import { SkeletonGrid } from '../components/ui/SkeletonCard'
-import { getTopStations, getCountries, getStationsByCountry, getStationsByTag, type Station } from '../lib/radio-browser'
+import { getTopStations, getCountries, getStationsByCountry, getStationsByTag, getStationsByState, type Station } from '../lib/radio-browser'
 import { searchPodcasts } from '../lib/itunes'
 import { queryKeys } from '../lib/query-keys'
 import { useRecentlyPlayed } from '../hooks/useRecentlyPlayed'
@@ -40,7 +40,7 @@ function Home() {
 
 function PersonalisedCarousels() {
   const { profile, isLoading: profileLoading } = usePersonalisedProfile()
-  const { topCountryCode, topGenre, lastCountryCode, lastGenre } = profile
+  const { topCountryCode, topGenre, lastCountryCode, lastGenre, lastRegionName } = profile
 
   return (
     <>
@@ -53,6 +53,7 @@ function PersonalisedCarousels() {
         <>
           {topCountryCode && <MoreFromCountrySection countryCode={topCountryCode} />}
           {topGenre && <MoreFromGenreSection genre={topGenre} />}
+          {lastRegionName && <MoreFromStateSection state={lastRegionName} />}
         </>
       )}
       {lastCountryCode && <ContinueExploringCountrySection countryCode={lastCountryCode} />}
@@ -95,6 +96,25 @@ function MoreFromCountrySection({ countryCode }: { countryCode: string }) {
         subtitle="Stations you might love"
         href={`/countries/${countryCode}`}
         hrefLabel="See all"
+      />
+      <StationCarouselRow stations={stations} isLoading={isLoading} />
+    </section>
+  )
+}
+
+function MoreFromStateSection({ state }: { state: string }) {
+  const { data: stations, isLoading } = useQuery({
+    queryKey: [...queryKeys.stations.byState(state), 'personalised-more'],
+    queryFn: () => getStationsByState(state, 10),
+  })
+
+  if (!isLoading && (!stations || stations.length === 0)) return null
+
+  return (
+    <section className="page-wrap px-4">
+      <SectionHeader
+        title={`Radio in ${state}`}
+        subtitle="Stations near you"
       />
       <StationCarouselRow stations={stations} isLoading={isLoading} />
     </section>

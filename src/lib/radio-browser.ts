@@ -137,6 +137,21 @@ export async function getStationsByCountry(
   return mock.slice(offset, offset + limit)
 }
 
+export async function getStationsByState(
+  state: string,
+  limit = PAGE_SIZE,
+  offset = 0,
+): Promise<Station[]> {
+  return apiFetch<Station[]>('/stations/search', {
+    countrycode: 'US',
+    state,
+    limit: String(limit),
+    offset: String(offset),
+    order: 'votes',
+    reverse: 'true',
+  })
+}
+
 export async function getTopTags(limit = 60): Promise<Tag[]> {
   return apiFetch<Tag[]>('/tags', {
     order: 'stationcount',

@@ -8,6 +8,7 @@ export const queryKeys = {
     byUuid: (uuid: string) => ['stations', 'uuid', uuid] as const,
     byTag: (tag: string) => ['stations', 'tag', tag] as const,
     byCountry: (countrycode: string) => ['stations', 'country', countrycode] as const,
+    byState: (state: string) => ['stations', 'state', state] as const,
   },
   tags: {
     top: (limit?: number) => ['tags', 'top', limit ?? 60] as const,

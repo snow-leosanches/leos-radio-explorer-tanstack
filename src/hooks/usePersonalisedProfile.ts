@@ -15,6 +15,7 @@ export interface PersonalisedProfile {
   topGenre: string | null
   lastCountryCode: string | null
   lastGenre: string | null
+  lastRegionName: string | null
 }
 
 function topKey(dict: Record<string, number> | undefined): string | null {
@@ -51,6 +52,7 @@ export function usePersonalisedProfile(): { profile: PersonalisedProfile; attrib
       topGenre: topKey(data?.genres_count) ?? null,
       lastCountryCode: data?.last_country_visited ?? null,
       lastGenre: data?.last_genre_visited ?? null,
+      lastRegionName: data?.last_region_name ?? null,
     },
     attributes: data ?? null,
     isLoading: isLoading || isFetching,
