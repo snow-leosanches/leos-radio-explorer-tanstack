@@ -6,6 +6,8 @@ interface AttributeGroupData {
   genres_count?: Record<string, number>
   last_country_visited?: string
   last_genre_visited?: string
+  last_region_name?: string
+  last_zip_code?: string
 }
 
 export interface PersonalisedProfile {
@@ -32,8 +34,8 @@ export function usePersonalisedProfile(): { profile: PersonalisedProfile; isLoad
         attribute_key: 'domain_userid',
         identifier: domainUserId!,
         name: 'leos_radio_explorer_domain_userid',
-        version: '1',
-        attributes: 'countries_count,genres_count,last_country_visited,last_genre_visited',
+        version: '2',
+        attributes: 'countries_count,genres_count,last_country_visited,last_genre_visited,last_region_name,last_zip_code',
       })
       const res = await fetch(`/api/attribute-groups?${params.toString()}`)
       if (!res.ok) return {}
