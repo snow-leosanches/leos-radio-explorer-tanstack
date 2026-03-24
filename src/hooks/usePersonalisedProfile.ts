@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { snowplowTracker } from '../lib/snowplow'
 
-interface AttributeGroupData {
+export interface AttributeGroupData {
   countries_count?: Record<string, number>
   genres_count?: Record<string, number>
   last_country_visited?: string
@@ -24,7 +24,7 @@ function topKey(dict: Record<string, number> | undefined): string | null {
   return entries.reduce((best, curr) => (curr[1] > best[1] ? curr : best))[0]
 }
 
-export function usePersonalisedProfile(): { profile: PersonalisedProfile; isLoading: boolean } {
+export function usePersonalisedProfile(): { profile: PersonalisedProfile; attributes: AttributeGroupData | null; isLoading: boolean } {
   const domainUserId = snowplowTracker?.getDomainUserId() ?? null
 
   const { data, isLoading, isFetching } = useQuery({
@@ -52,6 +52,7 @@ export function usePersonalisedProfile(): { profile: PersonalisedProfile; isLoad
       lastCountryCode: data?.last_country_visited ?? null,
       lastGenre: data?.last_genre_visited ?? null,
     },
+    attributes: data ?? null,
     isLoading: isLoading || isFetching,
   }
 }

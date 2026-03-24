@@ -1,9 +1,16 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useUser } from '../context/UserContext'
 import { useOnboarding } from '../context/OnboardingContext'
 import { TOPIC_GROUPS, MIN_INTERESTS } from '../lib/onboarding-topics'
 import { snowplowTracker, trackStructEvent } from '../lib/snowplow'
+import { useRecentlyPlayed } from '../hooks/useRecentlyPlayed'
+import { usePersonalisedProfile } from '../hooks/usePersonalisedProfile'
+import StationCard from '../components/ui/StationCard'
+import { flagEmoji, getGenreMeta } from '../lib/genre-meta'
+import { getCountries } from '../lib/radio-browser'
+import { queryKeys } from '../lib/query-keys'
 
 export const Route = createFileRoute('/profile')({
   head: () => ({ meta: [{ title: "Profile · Leo's Radio Explorer" }] }),
@@ -386,7 +393,140 @@ function ProfilePage() {
           </div>
         )}
 
+        <RadioHistorySection />
+        <SignalsAttributesSection />
+
       </div>
     </main>
+  )
+}
+
+// ─── Radio History ────────────────────────────────────────────────────────────
+
+function RadioHistorySection() {
+  const recent = useRecentlyPlayed()
+
+  return (
+    <section className="island-shell mb-10 rounded-2xl p-6">
+      <h2 className="mb-4 text-xs font-bold uppercase tracking-widest text-[var(--sea-ink-soft)]">
+        Listening History
+      </h2>
+      {recent.length === 0 ? (
+        <p className="text-sm text-[var(--sea-ink-soft)]">No stations played yet. Start exploring!</p>
+      ) : (
+        <div className="flex flex-col divide-y divide-[var(--line)]">
+          {recent.map((station) => (
+            <StationCard key={station.stationuuid} station={station} variant="row" />
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+// ─── Signals Attributes ───────────────────────────────────────────────────────
+
+function SignalsAttributesSection() {
+  const { attributes, isLoading } = usePersonalisedProfile()
+  const { data: countries } = useQuery({
+    queryKey: queryKeys.countries.all(),
+    queryFn: () => getCountries(),
+  })
+
+  const countryName = (code: string) =>
+    countries?.find((c) => c.iso_3166_1.toUpperCase() === code.toUpperCase())?.name ?? code
+
+  if (isLoading) {
+    return (
+      <section className="island-shell mb-10 rounded-2xl p-6">
+        <h2 className="mb-4 text-xs font-bold uppercase tracking-widest text-[var(--sea-ink-soft)]">
+          Listening Profile
+        </h2>
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="skeleton-pulse h-4 w-2/3 rounded" />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  if (!attributes) return null
+
+  const sortedCountries = Object.entries(attributes.countries_count ?? {}).sort(([, a], [, b]) => b - a)
+  const sortedGenres = Object.entries(attributes.genres_count ?? {}).sort(([, a], [, b]) => b - a)
+  const hasLastSession =
+    attributes.last_country_visited ||
+    attributes.last_genre_visited ||
+    attributes.last_region_name ||
+    attributes.last_zip_code
+
+  if (sortedCountries.length === 0 && sortedGenres.length === 0 && !hasLastSession) return null
+
+  return (
+    <section className="island-shell mb-10 rounded-2xl p-6">
+      <h2 className="mb-6 text-xs font-bold uppercase tracking-widest text-[var(--sea-ink-soft)]">
+        Listening Profile
+      </h2>
+      <dl className="flex flex-col gap-6">
+        {sortedCountries.length > 0 && (
+          <div>
+            <dt className="mb-2 text-xs font-semibold text-[var(--sea-ink-soft)]">Countries explored</dt>
+            <dd className="flex flex-wrap gap-2">
+              {sortedCountries.map(([code, count]) => (
+                <span
+                  key={code}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-3 py-1 text-sm font-medium text-[var(--sea-ink)]"
+                >
+                  {flagEmoji(code)} {countryName(code)}
+                  <span className="text-xs text-[var(--sea-ink-soft)]">· {count}</span>
+                </span>
+              ))}
+            </dd>
+          </div>
+        )}
+        {sortedGenres.length > 0 && (
+          <div>
+            <dt className="mb-2 text-xs font-semibold text-[var(--sea-ink-soft)]">Genres explored</dt>
+            <dd className="flex flex-wrap gap-2">
+              {sortedGenres.map(([genre, count]) => {
+                const meta = getGenreMeta(genre)
+                const label = genre.charAt(0).toUpperCase() + genre.slice(1)
+                return (
+                  <span
+                    key={genre}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-3 py-1 text-sm font-medium text-[var(--sea-ink)]"
+                  >
+                    {meta.emoji} {label}
+                    <span className="text-xs text-[var(--sea-ink-soft)]">· {count}</span>
+                  </span>
+                )
+              })}
+            </dd>
+          </div>
+        )}
+        {hasLastSession && (
+          <div>
+            <dt className="mb-3 text-xs font-semibold text-[var(--sea-ink-soft)]">Last session</dt>
+            <dd className="grid gap-3 sm:grid-cols-2">
+              {attributes.last_country_visited && (
+                <Field
+                  label="Country"
+                  value={`${flagEmoji(attributes.last_country_visited)} ${countryName(attributes.last_country_visited)}`}
+                />
+              )}
+              {attributes.last_genre_visited && (
+                <Field
+                  label="Genre"
+                  value={`${getGenreMeta(attributes.last_genre_visited).emoji} ${attributes.last_genre_visited.charAt(0).toUpperCase() + attributes.last_genre_visited.slice(1)}`}
+                />
+              )}
+              {attributes.last_region_name && <Field label="Region" value={attributes.last_region_name} />}
+              {attributes.last_zip_code && <Field label="ZIP code" value={attributes.last_zip_code} />}
+            </dd>
+          </div>
+        )}
+      </dl>
+    </section>
   )
 }
