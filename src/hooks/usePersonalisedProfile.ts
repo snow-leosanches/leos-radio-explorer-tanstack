@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { snowplowTracker } from '../lib/snowplow'
 
+/** Prefix for React Query keys that load Snowplow Signals attribute-group data. */
+export const SIGNALS_QUERY_KEY_PREFIX = ['signals'] as const
+
 export interface AttributeGroupData {
   countries_count?: Record<string, number>
   genres_count?: Record<string, number>
@@ -29,7 +32,7 @@ export function usePersonalisedProfile(): { profile: PersonalisedProfile; attrib
   const domainUserId = snowplowTracker?.getDomainUserId() ?? null
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['signals', 'attribute-groups', 'leos_radio_explorer_domain_userid', domainUserId],
+    queryKey: [...SIGNALS_QUERY_KEY_PREFIX, 'attribute-groups', 'leos_radio_explorer_domain_userid', domainUserId],
     queryFn: async (): Promise<AttributeGroupData> => {
       const params = new URLSearchParams({
         attribute_key: 'domain_userid',

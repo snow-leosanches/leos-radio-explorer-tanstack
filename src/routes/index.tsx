@@ -42,20 +42,20 @@ function PersonalisedCarousels() {
   const { profile, isLoading: profileLoading } = usePersonalisedProfile()
   const { topCountryCode, topGenre, lastCountryCode, lastGenre, lastRegionName } = profile
 
+  if (profileLoading) {
+    return (
+      <>
+        <CarouselSkeletonSection />
+        <CarouselSkeletonSection />
+      </>
+    )
+  }
+
   return (
     <>
-      {profileLoading ? (
-        <>
-          <CarouselSkeletonSection />
-          <CarouselSkeletonSection />
-        </>
-      ) : (
-        <>
-          {topCountryCode && <MoreFromCountrySection countryCode={topCountryCode} />}
-          {topGenre && <MoreFromGenreSection genre={topGenre} />}
-          {lastRegionName && <MoreFromStateSection state={lastRegionName} />}
-        </>
-      )}
+      {topCountryCode && <MoreFromCountrySection countryCode={topCountryCode} />}
+      {topGenre && <MoreFromGenreSection genre={topGenre} />}
+      {lastRegionName && <MoreFromStateSection state={lastRegionName} />}
       {lastCountryCode && <ContinueExploringCountrySection countryCode={lastCountryCode} />}
       {lastGenre && <ContinueExploringGenreSection genre={lastGenre} />}
     </>

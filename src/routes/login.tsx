@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { faker } from '@faker-js/faker'
 import { useUser } from '../context/UserContext'
 import { getStoredOnboardingData } from '../context/OnboardingContext'
 import { knownUsers } from '../lib/known-users'
 import { snowplowTracker, trackStructEvent } from '../lib/snowplow'
+import { SIGNALS_QUERY_KEY_PREFIX } from '../hooks/usePersonalisedProfile'
 
 export const Route = createFileRoute('/login')({
   validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
@@ -16,6 +18,7 @@ export const Route = createFileRoute('/login')({
 
 function LoginPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { redirect = '/' } = Route.useSearch()
   const { setUser, clearUser } = useUser()
   const [manualEmail, setManualEmail] = useState('')
@@ -23,6 +26,11 @@ function LoginPage() {
   const resetSnowplowSession = () => {
     clearUser()
     snowplowTracker?.setUserId(null)
+    // Clears first-party id/session storage and assigns a new domain user id (in-memory + next persisted cookie write).
+    snowplowTracker?.clearUserData()
+    // Drop cached Signals attribute-group responses so carousels do not reuse the previous domain_userid’s data.
+    queryClient.removeQueries({ queryKey: [...SIGNALS_QUERY_KEY_PREFIX] })
+    void navigate({ to: '/' })
   }
 
   const trackLogin = (id: string) => {
@@ -90,7 +98,7 @@ function LoginPage() {
           </button>
         </div>
         <p className="mt-2 text-xs text-[var(--sea-ink-soft)]">
-          Reset clears domain/session cookies and user id.
+          Reset assigns a new Snowplow domain user id, clears cached Signals attributes, and returns you to the home page.
         </p>
       </section>
 
